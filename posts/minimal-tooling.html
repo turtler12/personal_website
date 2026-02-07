@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minimal tooling, maximum clarity – Medha Venkatapathy</title>
+  <meta name="description" content="Thoughts on keeping development environments simple and why I avoid most frameworks.">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <div class="grain"></div>
+
+  <nav>
+    <a href="/" class="nav-name">medha</a>
+    <div class="nav-links">
+      <a href="/blog.html">blog</a>
+      <a href="mailto:medhaven@mit.edu">contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <article>
+      <header>
+        <h1>Minimal tooling, maximum clarity</h1>
+        <p class="meta">December 2025</p>
+      </header>
+
+      <div class="content">
+        <p>I've been programming for long enough now to have watched several generations of "essential" tools come and go. Build systems that were mandatory are now obscure. Frameworks that seemed inevitable are deprecated. The code that survives is usually the simplest code.</p>
+
+        <p>This has made me conservative about dependencies. Not in a dogmatic way—I'll use a library when it genuinely solves a hard problem. But I've learned to be skeptical of tools that promise to make easy things easier.</p>
+
+        <h2>The real cost</h2>
+
+        <p>Dependencies have costs that don't appear in the initial decision:</p>
+
+        <ul>
+          <li>You have to learn them, and keep learning as they evolve</li>
+          <li>They break, and you have to debug code you didn't write</li>
+          <li>They get abandoned, and you have to migrate or maintain a fork</li>
+          <li>They have opinions that may not match yours</li>
+        </ul>
+
+        <p>For a research project that needs to work for six months, these costs might be acceptable. For code I hope to maintain for years, they add up.</p>
+
+        <h2>What I actually use</h2>
+
+        <p>My current setup is boring by design:</p>
+
+        <ul>
+          <li>Python with minimal dependencies for research code</li>
+          <li>Plain HTML/CSS for web projects (like this site)</li>
+          <li>Make for build automation</li>
+          <li>Git for version control</li>
+          <li>A good text editor</li>
+        </ul>
+
+        <p>That's mostly it. When I need something more specialized—PyTorch for ML, NumPy for numerics—I'll use it. But I try to keep the core stack as simple as possible.</p>
+
+        <h2>The clarity payoff</h2>
+
+        <p>The benefit isn't just reduced maintenance burden. Simple tools produce simple systems, and simple systems are easier to reason about. When something breaks, I usually know where to look. When I revisit old code, I can understand it.</p>
+
+        <p>There's also something satisfying about building things from basic components. You understand what's actually happening. The abstraction isn't hiding complexity you don't understand—it's complexity you chose to encapsulate.</p>
+
+        <blockquote>
+          <p>Measure twice, ship once.</p>
+        </blockquote>
+
+        <p>I think a lot about this phrase. The temptation is always to move fast, to grab the tool that promises quick results. But the time you save in the first week often costs you in the first year.</p>
+      </div>
+
+      <a href="/blog.html" class="back-link">← Back to blog</a>
+    </article>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p class="footer-tagline">Let's build something elegant.</p>
+      <div class="footer-links">
+        <a href="mailto:medhaven@mit.edu" class="footer-link">
+          <span class="footer-label">Email</span>
+          <span>medhaven@mit.edu</span>
+        </a>
+        <a href="https://www.linkedin.com/in/medhav/" target="_blank" rel="noopener" class="footer-link">
+          <span class="footer-label">LinkedIn</span>
+          <span>/medhav</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

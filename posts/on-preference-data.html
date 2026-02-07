@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>On preference data quality – Medha Venkatapathy</title>
+  <meta name="description" content="Why better data often beats more compute, and what that means for post-training.">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <div class="grain"></div>
+
+  <nav>
+    <a href="/" class="nav-name">medha</a>
+    <div class="nav-links">
+      <a href="/blog.html">blog</a>
+      <a href="mailto:medhaven@mit.edu">contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <article>
+      <header>
+        <h1>On preference data quality</h1>
+        <p class="meta">January 2026</p>
+      </header>
+
+      <div class="content">
+        <p>There's a persistent belief in parts of the ML community that scale solves everything. More parameters, more tokens, more compute. And while scale has produced remarkable results, I've become increasingly convinced that the post-training phase deserves more attention than it gets.</p>
+
+        <p>The basic insight isn't new: a model's behavior is shaped not just by pretraining, but by the fine-tuning that follows. RLHF, DPO, and related methods all rely on preference data—examples of "better" and "worse" outputs that teach the model what we actually want.</p>
+
+        <h2>Quality compounds</h2>
+
+        <p>What I've seen in practice is that preference data quality has compounding effects. Clean, well-annotated examples don't just improve the immediate metric—they reduce the noise that causes instability in training, lead to faster convergence, and result in models that generalize better to novel situations.</p>
+
+        <p>The opposite is also true. Noisy preference data introduces contradictions that the model has to somehow reconcile. This often manifests as unpredictable behavior on edge cases, or a tendency to hedge excessively.</p>
+
+        <h2>What "quality" means</h2>
+
+        <p>When I say quality, I mean several things:</p>
+
+        <ul>
+          <li><strong>Consistency</strong>: annotators should agree with each other and with themselves over time</li>
+          <li><strong>Clarity</strong>: the preference should be unambiguous given the task definition</li>
+          <li><strong>Coverage</strong>: the data should represent the actual distribution of queries the model will see</li>
+          <li><strong>Calibration</strong>: strong preferences should indicate large quality gaps, not annotator confidence</li>
+        </ul>
+
+        <p>Getting all four right is surprisingly hard. Most datasets I've worked with fail on at least one dimension.</p>
+
+        <h2>Implications</h2>
+
+        <p>If I'm right about this, it suggests that smaller organizations can compete more effectively than the "scale is all you need" framing implies. Careful curation of training data, thoughtful annotation guidelines, and iterative refinement of the preference model can substitute for a lot of compute.</p>
+
+        <p>It also suggests we should invest more in evaluation. You can only improve what you can measure, and the standard benchmarks often miss the subtle behavioral changes that matter most for real-world usefulness.</p>
+
+        <p>More on evaluation another time.</p>
+      </div>
+
+      <a href="/blog.html" class="back-link">← Back to blog</a>
+    </article>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p class="footer-tagline">Let's build something elegant.</p>
+      <div class="footer-links">
+        <a href="mailto:medhaven@mit.edu" class="footer-link">
+          <span class="footer-label">Email</span>
+          <span>medhaven@mit.edu</span>
+        </a>
+        <a href="https://www.linkedin.com/in/medhav/" target="_blank" rel="noopener" class="footer-link">
+          <span class="footer-label">LinkedIn</span>
+          <span>/medhav</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gravity and noise – Medha Venkatapathy</title>
+  <meta name="description" content="A brief note on working with LIGO data and the art of finding signals in noise.">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <div class="grain"></div>
+
+  <nav>
+    <a href="/" class="nav-name">medha</a>
+    <div class="nav-links">
+      <a href="/blog.html">blog</a>
+      <a href="mailto:medhaven@mit.edu">contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <article>
+      <header>
+        <h1>Gravity and noise</h1>
+        <p class="meta">November 2025</p>
+      </header>
+
+      <div class="content">
+        <p>Gravitational waves are absurdly small. By the time they reach Earth from a distant black hole merger, they're stretching and compressing space by about one part in ten thousand trillion trillion. To detect this, LIGO measures changes smaller than a proton's width across four kilometers.</p>
+
+        <p>The engineering required to achieve this is remarkable. But what strikes me most, working with LIGO data, is how much of the job is about noise.</p>
+
+        <h2>The noise is everywhere</h2>
+
+        <p>The detectors are sensitive enough to pick up trucks on nearby highways, ocean waves hitting distant coastlines, and the thermal vibrations of the mirrors themselves. Each of these shows up in the data. Each has to be understood, characterized, and removed or accounted for.</p>
+
+        <p>My work has involved building dashboards and analysis tools for tracking coherence between different channels—essentially asking "is this signal appearing in multiple places in a way that suggests a real gravitational wave, or in a way that suggests local interference?"</p>
+
+        <h2>What I've learned</h2>
+
+        <p>A few things have stuck with me:</p>
+
+        <p><strong>Characterization matters.</strong> You can't remove what you don't understand. The time spent mapping out noise sources pays off in cleaner analysis.</p>
+
+        <p><strong>Simple visualizations help.</strong> The coherence dashboards that proved most useful weren't the fanciest—they were the ones that made patterns obvious at a glance.</p>
+
+        <p><strong>Reproducibility is hard.</strong> When you're dealing with TB of time-series data, keeping track of exactly which version of which script produced which result requires discipline. I've become evangelical about logging and documentation.</p>
+
+        <h2>The physics part</h2>
+
+        <p>I should say something about the actual physics, which remains astonishing. Two black holes spiral toward each other over millions of years, accelerating in the final seconds to nearly the speed of light, then merge in a cataclysm that briefly outshines all the stars in the universe—and we can detect the faint echo of that event from billions of light-years away.</p>
+
+        <p>When a signal passes all the checks and you know it's real, there's a particular kind of wonder in that. The noise fades away, and you're left with a message from across the cosmos.</p>
+      </div>
+
+      <a href="/blog.html" class="back-link">← Back to blog</a>
+    </article>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p class="footer-tagline">Let's build something elegant.</p>
+      <div class="footer-links">
+        <a href="mailto:medhaven@mit.edu" class="footer-link">
+          <span class="footer-label">Email</span>
+          <span>medhaven@mit.edu</span>
+        </a>
+        <a href="https://www.linkedin.com/in/medhav/" target="_blank" rel="noopener" class="footer-link">
+          <span class="footer-label">LinkedIn</span>
+          <span>/medhav</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

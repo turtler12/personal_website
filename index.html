@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Medha Venkatapathy</title>
+  <meta name="description" content="CS × Physics at MIT. Research, tools, and occasional thoughts.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="grain"></div>
+
+  <nav>
+    <a href="/" class="nav-name">medha</a>
+    <div class="nav-links">
+      <a href="/blog.html">blog</a>
+      <a href="mailto:medhaven@mit.edu">contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <div class="hero-text">
+          <p class="eyebrow">CS × Physics at MIT</p>
+          <h1>Medha Venkatapathy</h1>
+          <p class="intro">
+            Hi! I like ML research, AI alignment, and building useful tools. Currently interested in efficient post-training methods, on-policy RL, and optimizers. Long term, I want to work at a frontier ML research lab and I will be applying to PhD programs in Fall 2026.
+          </p>
+          <p class="currently">Currently: post-training experiments and building Trust AI.</p>
+          <div class="hero-tags">
+            <span class="tag tag-rose">machine learning</span>
+            <span class="tag tag-sage">physics</span>
+            <span class="tag tag-gold">systems</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section research-section">
+      <h2><span class="section-icon">01</span>Research / Projects</h2>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-accent accent-rose"></div>
+          <h3>Post-training & optimization</h3>
+          <p>Efficient RLHF, preference modeling, orthogonal/manifold methods, and evaluation data pipelines.</p>
+          <span class="card-tag">ML</span>
+        </div>
+        <a href="https://www.trytrust.ai/" target="_blank" rel="noopener" class="card card-link">
+          <div class="card-accent accent-rose"></div>
+          <h3>Trust AI</h3>
+          <p>Making a cool company about AI governance with Hannah Chung!</p>
+          <span class="card-tag">ML</span>
+        </a>
+        <div class="card">
+          <div class="card-accent accent-sage"></div>
+          <h3>Gravitational-wave analysis</h3>
+          <p>Coherence dashboards and analysis scripts for detector artifacts and cross-channel effects.</p>
+          <span class="card-tag">Physics</span>
+        </div>
+        <div class="card">
+          <div class="card-accent accent-gold"></div>
+          <h3>Systems and physics</h3>
+          <p>Trajectory modeling and resource-allocation prototypes with clarity and reproducibility.</p>
+          <span class="card-tag">Systems</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"><span class="divider-dot"></span></div>
+    <section class="section writing-section">
+      <h2><span class="section-icon">02</span>Writing</h2>
+      <p class="section-desc">Notes on research, systems, and other things.</p>
+      <div class="post-list">
+        <a href="/posts/on-preference-data.html" class="post-preview">
+          <span class="post-title">On preference data quality</span>
+          <span class="post-meta"><span class="post-tag">ML</span>Jan 2026</span>
+        </a>
+        <a href="/posts/minimal-tooling.html" class="post-preview">
+          <span class="post-title">Minimal tooling, maximum clarity</span>
+          <span class="post-meta"><span class="post-tag">Systems</span>Dec 2025</span>
+        </a>
+        <a href="/posts/gravity-and-noise.html" class="post-preview">
+          <span class="post-title">Gravity and noise</span>
+          <span class="post-meta"><span class="post-tag">Physics</span>Nov 2025</span>
+        </a>
+      </div>
+      <a href="/blog.html" class="see-all">See all posts <span class="arrow">→</span></a>
+    </section>
+
+    <div class="section-divider"><span class="divider-dot"></span></div>
+    <section class="section fun-section">
+      <h2><span class="section-icon">03</span>For fun</h2>
+      <div class="fun-grid">
+        <div class="fun-item">
+          <div class="fun-image-placeholder">
+            <span>image</span>
+          </div>
+          <div class="fun-text">
+            <strong>Bharatnatyam</strong>
+            <p>Precision, rhythm, storytelling</p>
+          </div>
+        </div>
+        <div class="fun-item">
+          <div class="fun-image-placeholder">
+            <span>image</span>
+          </div>
+          <div class="fun-text">
+            <strong>Hiking</strong>
+            <p>Quiet trails, big skies</p>
+          </div>
+        </div>
+        <div class="fun-item">
+          <div class="fun-image-placeholder">
+            <span>image</span>
+          </div>
+          <div class="fun-text">
+            <strong>Web craft</strong>
+            <p>Small, fast, well-typed</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p class="footer-tagline">Reach out!</p>
+      <div class="footer-links">
+        <a href="mailto:medhaven@mit.edu" class="footer-link">
+          <span class="footer-label">Email</span>
+          <span>medhaven@mit.edu</span>
+        </a>
+        <a href="https://www.linkedin.com/in/medhav/" target="_blank" rel="noopener" class="footer-link">
+          <span class="footer-label">LinkedIn</span>
+          <span>/medhav</span>
+        </a>
+        <a href="#" onclick="promptForCV(event)" class="footer-link">
+          <span class="footer-label">CV</span>
+          <span>View CV</span>
+        </a>
+        <a href="https://github.com/turtler12" target="_blank" rel="noopener" class="footer-link">
+          <span class="footer-label">GitHub</span>
+          <span>/turtler12</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function promptForCV(e) {
+      e.preventDefault();
+      const name = prompt("Enter my first name to view CV:");
+      if (name && name.toLowerCase().trim() === "medha") {
+        window.open("https://docs.google.com/document/d/11hupDk9OsjaqwqRqFDnLTDLQ23ZV9arUafSoRUZJUV4/edit?usp=sharing", "_blank");
+      } else if (name !== null) {
+        alert("Incorrect. Hint: it's on this page!");
+      }
+    }
+  </script>
+</body>
+</html>
