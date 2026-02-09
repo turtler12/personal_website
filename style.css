@@ -291,13 +291,6 @@ main {
 
 .research-section .cards-grid {
   position: relative;
-  padding: 2rem;
-  border-radius: 20px;
-  background:
-    radial-gradient(ellipse at 15% 25%, rgba(196, 93, 93, 0.15) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 75%, rgba(93, 138, 107, 0.15) 0%, transparent 55%),
-    radial-gradient(ellipse at 65% 15%, rgba(184, 134, 11, 0.12) 0%, transparent 55%),
-    linear-gradient(135deg, rgba(245, 232, 232, 0.4) 0%, rgba(232, 240, 234, 0.4) 50%, rgba(245, 240, 224, 0.4) 100%);
 }
 
 /* Decorative section divider: gradient line — dot — gradient line */
@@ -439,14 +432,15 @@ main {
   display: inline-block;
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-top: 0.8rem;
-  background: rgba(255, 255, 255, 0.5);
-  padding: 0.2rem 0.6rem;
-  border-radius: 12px;
+  opacity: 0.6;
 }
+
+.card-tag-rose { color: var(--rose); }
+.card-tag-sage { color: var(--sage); }
+.card-tag-gold { color: var(--gold); }
 
 /* Clickable card link */
 a.card-link {
