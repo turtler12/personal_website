@@ -32,6 +32,53 @@
   --radius-sm: 6px;
 }
 
+/* Dark theme */
+[data-theme="dark"] {
+  --bg: #1a1a1f;
+  --bg-alt: #232328;
+  --fg: #e8e5e0;
+  --muted: #a09a90;
+
+  --rose: #e07070;
+  --rose-soft: #3a2525;
+  --rose-muted: #8a5555;
+
+  --sage: #7ab08a;
+  --sage-soft: #253028;
+  --sage-muted: #5a8a65;
+
+  --gold: #d4a020;
+  --gold-soft: #302a18;
+  --gold-muted: #8a7a40;
+
+  --border: #333338;
+  --border-dark: #444448;
+}
+
+[data-theme="dark"] .grain {
+  opacity: 0.015;
+}
+
+[data-theme="dark"] .hero h1 {
+  background: linear-gradient(135deg, var(--fg) 0%, #b0aca5 50%, var(--fg) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+[data-theme="dark"] .card {
+  background: rgba(35, 35, 40, 0.6);
+  border-color: rgba(60, 60, 65, 0.6);
+}
+
+[data-theme="dark"] .card:hover {
+  background: rgba(40, 40, 45, 0.75);
+  border-color: rgba(70, 70, 75, 0.7);
+}
+
+[data-theme="dark"] .fun-label {
+  background: rgba(0, 0, 0, 0.6);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -50,6 +97,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* Subtle grain texture overlay */
@@ -101,7 +149,6 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  animation: fadeIn 0.5s ease-out;
 }
 
 .nav-name {
@@ -120,6 +167,7 @@ nav {
 .nav-links {
   display: flex;
   gap: 2rem;
+  align-items: center;
 }
 
 .nav-links a {
@@ -161,7 +209,6 @@ main {
 /* Hero */
 .hero {
   padding: 4rem 0 5rem;
-  animation: fadeInUp 0.7s ease-out;
 }
 
 .hero-content {
@@ -280,13 +327,11 @@ main {
 
 /* Sections */
 .section {
-  animation: fadeInUp 0.7s ease-out backwards;
 }
 
 .research-section {
   position: relative;
   padding: 2.5rem 0;
-  animation-delay: 0.1s;
 }
 
 .research-section .cards-grid {
@@ -328,7 +373,6 @@ main {
 
 .writing-section {
   padding: 2.5rem 0;
-  animation-delay: 0.2s;
 }
 
 .section h2 {
@@ -551,7 +595,6 @@ a.card-link:hover::after {
 /* For fun section */
 .fun-section {
   padding: 2.5rem 0;
-  animation-delay: 0.3s;
 }
 
 .fun-grid {
@@ -661,7 +704,6 @@ footer {
   background: var(--bg-alt);
   border-top: 1px solid var(--border);
   margin-top: 2rem;
-  animation: fadeIn 0.6s ease-out 0.5s backwards;
 }
 
 .footer-content {
@@ -1000,6 +1042,199 @@ a:focus-visible {
   article h1 {
     font-size: 1.7rem;
   }
+}
+
+/* ========================================
+   Dynamic features
+   ======================================== */
+
+/* Dark mode toggle */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--muted);
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.theme-toggle:hover {
+  border-color: var(--gold-muted);
+  color: var(--gold);
+  transform: rotate(20deg);
+}
+
+/* Scroll-triggered reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.cards-grid .card:nth-child(1) { transition-delay: 0s; }
+.cards-grid .card:nth-child(2) { transition-delay: 0.08s; }
+.cards-grid .card:nth-child(3) { transition-delay: 0.16s; }
+.cards-grid .card:nth-child(4) { transition-delay: 0.24s; }
+
+.fun-grid .fun-item:nth-child(1) { transition-delay: 0s; }
+.fun-grid .fun-item:nth-child(2) { transition-delay: 0.08s; }
+.fun-grid .fun-item:nth-child(3) { transition-delay: 0.16s; }
+
+/* Active nav highlighting */
+.nav-links a.nav-active::after {
+  width: 100%;
+}
+
+.nav-links a.nav-active {
+  color: var(--fg);
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--fg);
+  color: var(--bg);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 999;
+  pointer-events: none;
+}
+
+.toast.toast-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Card expansion */
+.card[data-expandable] {
+  cursor: pointer;
+}
+
+.card-details {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.4s ease, opacity 0.3s ease, margin-top 0.3s ease;
+  margin-top: 0;
+}
+
+.card-expanded .card-details {
+  max-height: 200px;
+  opacity: 1;
+  margin-top: 0.8rem;
+}
+
+.card-details p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.card-expand-hint {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--muted);
+  opacity: 0.4;
+  margin-top: 0.4rem;
+  transition: opacity 0.2s ease;
+}
+
+.card:hover .card-expand-hint {
+  opacity: 0.7;
+}
+
+.card-expanded .card-expand-hint {
+  display: none;
+}
+
+.card-expanded {
+  grid-column: 1 / -1;
+}
+
+/* Lightbox trigger */
+.fun-item[data-lightbox] {
+  cursor: pointer;
+}
+
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.lightbox.lightbox-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox img {
+  max-width: 85vw;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: var(--radius);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.lightbox.lightbox-open img {
+  transform: scale(1);
+}
+
+.lightbox-label {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 1rem;
+  opacity: 0.8;
+}
+
+/* Rotating hero text */
+.rotating-text-wrapper {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--sage);
+  margin-bottom: 1.5rem;
+  min-height: 1.5em;
+}
+
+.rotating-text {
+  display: inline-block;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.rotating-text.fade-out {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 
 /* Reduced motion */

@@ -13,13 +13,16 @@
   <nav>
     <a href="/" class="nav-name">medha</a>
     <div class="nav-links">
-      <a href="/blog.html">blog</a>
+      <a href="#research" data-section="research">research</a>
+      <a href="#writing" data-section="writing">writing</a>
+      <a href="#fun" data-section="fun">fun</a>
       <a href="mailto:medhaven@mit.edu">contact</a>
+      <button class="theme-toggle" aria-label="Toggle dark mode">&#9790;</button>
     </div>
   </nav>
 
   <main>
-    <section class="hero">
+    <section class="hero reveal" id="hero">
       <div class="hero-content">
         <div class="hero-text">
           <p class="eyebrow">CS × Physics at MIT</p>
@@ -27,6 +30,9 @@
           <p class="intro">
             Hi! I like ML research, AI alignment, and building useful tools. Currently interested in optimizers and on-policy RL. My research is advised by Morris Yau and Jacob Andreas. Long term, I want to work at a frontier ML research lab and I will be applying to PhD programs in Fall 2027.
           </p>
+          <div class="rotating-text-wrapper">
+            <span class="rotating-text">Currently: improving the Muon optimizer</span>
+          </div>
           <div class="hero-tags">
             <span class="tag tag-rose">machine learning</span>
             <span class="tag tag-sage">physics</span>
@@ -39,13 +45,17 @@
       </div>
     </section>
 
-    <section class="section research-section">
+    <section class="section research-section reveal" id="research">
       <h2><span class="section-icon">01</span>Research / Projects</h2>
       <div class="cards-grid">
-        <div class="card">
+        <div class="card" data-expandable>
           <div class="card-accent accent-rose"></div>
           <h3>Post-training & optimization</h3>
           <p>Efficient RLHF, preference modeling, orthogonal/manifold methods, and evaluation data pipelines.</p>
+          <div class="card-details">
+            <p>Working on improving post-training efficiency through novel optimization techniques on manifolds, with a focus on scalable preference learning and robust evaluation frameworks.</p>
+          </div>
+          <span class="card-expand-hint">click to expand</span>
           <span class="card-tag card-tag-rose">ML</span>
         </div>
         <a href="https://www.trytrust.ai/" target="_blank" rel="noopener" class="card card-link">
@@ -54,40 +64,48 @@
           <p>Making a cool company about AI governance with Hannah Chung!</p>
           <span class="card-tag card-tag-rose">ML</span>
         </a>
-        <div class="card">
+        <div class="card" data-expandable>
           <div class="card-accent accent-sage"></div>
           <h3>Gravitational-wave analysis</h3>
           <p>Coherence dashboards and analysis scripts for detector artifacts and cross-channel effects.</p>
+          <div class="card-details">
+            <p>Building real-time coherence monitoring dashboards and developing analysis pipelines to identify and characterize instrumental artifacts in gravitational-wave detector data.</p>
+          </div>
+          <span class="card-expand-hint">click to expand</span>
           <span class="card-tag card-tag-sage">Physics</span>
         </div>
-        <div class="card">
+        <div class="card" data-expandable>
           <div class="card-accent accent-gold"></div>
           <h3>Systems and physics</h3>
           <p>Trajectory modeling and resource-allocation prototypes for Golden Dome using RL and LP algorithms.</p>
+          <div class="card-details">
+            <p>Developing reinforcement learning and linear programming approaches for optimal trajectory planning and dynamic resource allocation in defense systems.</p>
+          </div>
+          <span class="card-expand-hint">click to expand</span>
           <span class="card-tag card-tag-gold">Systems</span>
         </div>
       </div>
     </section>
 
-    <div class="section-divider"><span class="divider-dot"></span></div>
-    <section class="section writing-section">
+    <div class="section-divider reveal"><span class="divider-dot"></span></div>
+    <section class="section writing-section reveal" id="writing">
       <h2><span class="section-icon">02</span>Writing</h2>
       <p class="section-desc">Coming soon!</p>
     </section>
 
-    <div class="section-divider"><span class="divider-dot"></span></div>
-    <section class="section fun-section">
+    <div class="section-divider reveal"><span class="divider-dot"></span></div>
+    <section class="section fun-section reveal" id="fun">
       <h2><span class="section-icon">03</span>For fun</h2>
       <div class="fun-grid">
-        <div class="fun-item fun-item-image-only">
+        <div class="fun-item fun-item-image-only" data-lightbox>
           <img src="pictures/animals_small.jpg" alt="Petting animals" class="fun-image-full">
           <span class="fun-label">Petting animals</span>
         </div>
-        <div class="fun-item fun-item-image-only">
+        <div class="fun-item fun-item-image-only" data-lightbox>
           <img src="pictures/camel_small.jpg" alt="Riding a camel" class="fun-image-full">
           <span class="fun-label">Traveling</span>
         </div>
-        <div class="fun-item fun-item-image-only">
+        <div class="fun-item fun-item-image-only" data-lightbox>
           <img src="pictures/hiking_small.jpg" alt="Hiking" class="fun-image-full">
           <span class="fun-label">Hiking</span>
         </div>
@@ -95,11 +113,11 @@
     </section>
   </main>
 
-  <footer>
+  <footer class="reveal">
     <div class="footer-content">
       <p class="footer-tagline">Reach out!</p>
       <div class="footer-links">
-        <a href="mailto:medhaven@mit.edu" class="footer-link">
+        <a href="#" class="footer-link" id="email-copy">
           <span class="footer-label">Email</span>
           <span>medhaven@mit.edu</span>
         </a>
@@ -119,7 +137,17 @@
     </div>
   </footer>
 
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <img src="" alt="">
+    <span class="lightbox-label"></span>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">Copied!</div>
+
   <script>
+    // === CV Prompt ===
     function promptForCV(e) {
       e.preventDefault();
       const name = prompt("Enter my first name to view CV:");
@@ -129,6 +157,119 @@
         alert("Incorrect. Hint: it's on this page!");
       }
     }
+
+    // === 1. Dark Mode Toggle ===
+    const toggle = document.querySelector('.theme-toggle');
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+      document.documentElement.setAttribute('data-theme', saved);
+    }
+    function updateToggleIcon() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      toggle.innerHTML = isDark ? '&#9788;' : '&#9790;';
+    }
+    updateToggleIcon();
+    toggle.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const next = isDark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateToggleIcon();
+    });
+
+    // === 2. Scroll-Triggered Animations ===
+    const reveals = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    reveals.forEach(el => revealObserver.observe(el));
+
+    // === 3. Copy-to-Clipboard Email ===
+    const emailLink = document.getElementById('email-copy');
+    const toast = document.getElementById('toast');
+    emailLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      navigator.clipboard.writeText('medhaven@mit.edu').then(() => {
+        toast.classList.add('toast-visible');
+        setTimeout(() => toast.classList.remove('toast-visible'), 2000);
+      });
+    });
+
+    // === 4. Active Nav Highlighting ===
+    const navLinks = document.querySelectorAll('.nav-links a[data-section]');
+    const sections = document.querySelectorAll('section[id]');
+    const navObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => {
+            link.classList.toggle('nav-active', link.dataset.section === entry.target.id);
+          });
+        }
+      });
+    }, { threshold: 0.3, rootMargin: '-80px 0px -40% 0px' });
+    sections.forEach(s => navObserver.observe(s));
+
+    // === 5. Project Card Expansion ===
+    document.querySelectorAll('.card[data-expandable]').forEach(card => {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', () => {
+        const wasExpanded = card.classList.contains('card-expanded');
+        // Collapse all first
+        document.querySelectorAll('.card-expanded').forEach(c => c.classList.remove('card-expanded'));
+        // Toggle clicked one
+        if (!wasExpanded) {
+          card.classList.add('card-expanded');
+        }
+      });
+    });
+
+    // === 6. Fun Section Image Lightbox ===
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = lightbox.querySelector('img');
+    const lightboxLabel = lightbox.querySelector('.lightbox-label');
+
+    document.querySelectorAll('.fun-item[data-lightbox]').forEach(item => {
+      item.style.cursor = 'pointer';
+      item.addEventListener('click', () => {
+        const img = item.querySelector('img');
+        const label = item.querySelector('.fun-label');
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt;
+        lightboxLabel.textContent = label ? label.textContent : '';
+        requestAnimationFrame(() => lightbox.classList.add('lightbox-open'));
+      });
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove('lightbox-open');
+    }
+    lightbox.addEventListener('click', closeLightbox);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    // === 7. Rotating Hero Text ===
+    const phrases = [
+      'Currently: improving the Muon optimizer',
+      'Currently: building Trust AI',
+      'Currently: reading papers on RL'
+    ];
+    let phraseIndex = 0;
+    const rotatingText = document.querySelector('.rotating-text');
+
+    setInterval(() => {
+      rotatingText.classList.add('fade-out');
+      setTimeout(() => {
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        rotatingText.textContent = phrases[phraseIndex];
+        rotatingText.classList.remove('fade-out');
+      }, 400);
+    }, 3000);
   </script>
 </body>
 </html>
