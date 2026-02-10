@@ -1,9 +1,8 @@
 
-# images / large assets
-professional_picture_medha.jpg
-*.jpg
-*.jpeg
-*.png
+# images / large originals
+pictures/camel.JPEG
+pictures/animals.png
+pictures/professional_picture_medha.jpg
 
 # local/secret files
 .env
