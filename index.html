@@ -385,6 +385,17 @@
         return document.documentElement.getAttribute('data-theme') === 'dark';
       }
 
+      // Returns 0–1: 1 = inside content column, ~0.15 = far outside
+      const MAX_W = 900;
+      const FADE_BAND = 80; // px of soft transition at column edges
+      function columnAlpha(x) {
+        const half = Math.min(W / 2, MAX_W / 2 + 32); // 32px nav padding
+        const dist = Math.abs(x - W / 2) - half;
+        if (dist <= 0) return 1;
+        if (dist >= FADE_BAND) return 0.15;
+        return 1 - (dist / FADE_BAND) * 0.85;
+      }
+
       function draw() {
         ctx.clearRect(0, 0, W, H);
 
@@ -405,7 +416,8 @@
             const dx = a.x - b.x, dy = a.y - b.y;
             const dist = Math.hypot(dx, dy);
             if (dist < CONNECTION_DIST) {
-              const alpha = (1 - dist / CONNECTION_DIST) * (isDark() ? 0.25 : 0.18);
+              const colA = Math.min(columnAlpha(a.x), columnAlpha(b.x));
+              const alpha = (1 - dist / CONNECTION_DIST) * (isDark() ? 0.25 : 0.18) * colA;
               ctx.beginPath();
               ctx.moveTo(a.x, a.y);
               ctx.lineTo(b.x, b.y);
@@ -421,7 +433,7 @@
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
           ctx.fillStyle = p.color;
-          ctx.globalAlpha = isDark() ? 0.5 : 0.6;
+          ctx.globalAlpha = (isDark() ? 0.5 : 0.6) * columnAlpha(p.x);
           ctx.fill();
           ctx.globalAlpha = 1;
         }
