@@ -9,6 +9,7 @@
 </head>
 <body>
   <div class="grain"></div>
+  <canvas id="constellation-canvas" aria-hidden="true"></canvas>
 
   <nav>
     <a href="/" class="nav-name">medha</a>
@@ -269,6 +270,116 @@
         rotatingText.classList.remove('fade-out');
       }, 400);
     }, 3000);
+
+    // === 9. Fun Section 3D Image Tilt ===
+    (function () {
+      const MAX_TILT = 12; // degrees
+      document.querySelectorAll('.fun-item').forEach(item => {
+        item.addEventListener('mousemove', (e) => {
+          const rect = item.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const dx = (e.clientX - cx) / (rect.width / 2);
+          const dy = (e.clientY - cy) / (rect.height / 2);
+          item.style.transform = `perspective(600px) rotateX(${-dy * MAX_TILT}deg) rotateY(${dx * MAX_TILT}deg) scale(1.03)`;
+        });
+        item.addEventListener('mouseleave', () => {
+          item.style.transform = '';
+          item.style.transition = 'transform 0.5s ease';
+          setTimeout(() => item.style.transition = '', 500);
+        });
+        item.addEventListener('mouseenter', () => {
+          item.style.transition = 'transform 0.1s ease';
+        });
+      });
+    })();
+
+    // === 10. Constellation Particle Background ===
+    (function () {
+      const canvas = document.getElementById('constellation-canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Palette matched to site accent colors
+      const COLORS = ['#c45d5d', '#b8860b', '#5d8a6b', '#d4a5a5', '#d4c4a0', '#a5c4ad'];
+      const PARTICLE_COUNT = 55;
+      const CONNECTION_DIST = 130;
+      const SPEED = 0.28;
+
+      let W, H, particles;
+
+      function resize() {
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+      }
+
+      function makeParticle() {
+        return {
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * SPEED,
+          vy: (Math.random() - 0.5) * SPEED,
+          r: 1.5 + Math.random() * 1.5,
+          color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        };
+      }
+
+      function init() {
+        resize();
+        particles = Array.from({ length: PARTICLE_COUNT }, makeParticle);
+      }
+
+      function isDark() {
+        return document.documentElement.getAttribute('data-theme') === 'dark';
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Update positions
+        for (const p of particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0) p.x = W;
+          if (p.x > W) p.x = 0;
+          if (p.y < 0) p.y = H;
+          if (p.y > H) p.y = 0;
+        }
+
+        // Draw connections
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const a = particles[i], b = particles[j];
+            const dx = a.x - b.x, dy = a.y - b.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < CONNECTION_DIST) {
+              const alpha = (1 - dist / CONNECTION_DIST) * (isDark() ? 0.25 : 0.18);
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.strokeStyle = `rgba(${isDark() ? '160,154,144' : '100,90,80'},${alpha})`;
+              ctx.lineWidth = 0.8;
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Draw dots
+        for (const p of particles) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = isDark() ? 0.5 : 0.6;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      init();
+      draw();
+      window.addEventListener('resize', resize);
+    })();
 
     // === 8. Cursor Sparkle Trail ===
     (function () {
