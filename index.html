@@ -146,6 +146,26 @@
   <!-- Toast -->
   <div class="toast" id="toast">Copied!</div>
 
+  <!-- Scroll Petal Progress -->
+  <div class="scroll-petal" id="scroll-petal" aria-hidden="true">
+    <svg viewBox="0 0 36 36">
+      <defs>
+        <linearGradient id="petal-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#c45d5d"/>
+          <stop offset="50%" stop-color="#b8860b"/>
+          <stop offset="100%" stop-color="#5d8a6b"/>
+        </linearGradient>
+      </defs>
+      <!-- Track -->
+      <circle class="petal-track" cx="18" cy="18" r="15"/>
+      <!-- Progress arc: circumference = 2π×15 ≈ 94.25 -->
+      <circle class="petal-progress" cx="18" cy="18" r="15"
+        stroke-dasharray="94.25" stroke-dashoffset="94.25" id="petal-arc"/>
+      <!-- Center symbol -->
+      <text class="petal-symbol" x="18" y="18" id="petal-symbol">✿</text>
+    </svg>
+  </div>
+
   <script>
     // === CV Prompt ===
     function promptForCV(e) {
@@ -271,6 +291,39 @@
       }, 400);
     }, 3000);
 
+    // === 11. Scroll Progress Petal ===
+    (function () {
+      const petalWrap = document.getElementById('scroll-petal');
+      const arc = document.getElementById('petal-arc');
+      const symbol = document.getElementById('petal-symbol');
+      const CIRC = 94.25;
+      const SYMBOLS = ['✿', '❀', '✾', '⁕', '✦'];
+      let symIdx = 0;
+
+      window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY;
+        const total = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = total > 0 ? scrolled / total : 0;
+
+        // Show after scrolling a little
+        petalWrap.classList.toggle('visible', scrolled > 80);
+
+        // Update arc
+        arc.setAttribute('stroke-dashoffset', CIRC * (1 - pct));
+
+        // Rotate symbol gently as you scroll
+        symbol.style.transform = `rotate(${pct * 360}deg)`;
+        symbol.style.transformOrigin = '18px 18px';
+
+        // Cycle symbol at 25% intervals
+        const newIdx = Math.floor(pct * SYMBOLS.length) % SYMBOLS.length;
+        if (newIdx !== symIdx) {
+          symIdx = newIdx;
+          symbol.textContent = SYMBOLS[symIdx];
+        }
+      });
+    })();
+
     // === 9. Fun Section 3D Image Tilt ===
     (function () {
       const MAX_TILT = 12; // degrees
@@ -375,6 +428,30 @@
 
         requestAnimationFrame(draw);
       }
+
+      // Click to scatter nearby particles
+      window.addEventListener('click', (e) => {
+        const SCATTER_RADIUS = 120;
+        const SCATTER_FORCE = 3.5;
+        for (const p of particles) {
+          const dx = p.x - e.clientX;
+          const dy = p.y - (e.clientY + window.scrollY);
+          const dist = Math.hypot(dx, dy);
+          if (dist < SCATTER_RADIUS && dist > 0) {
+            const force = (1 - dist / SCATTER_RADIUS) * SCATTER_FORCE;
+            p.vx += (dx / dist) * force;
+            p.vy += (dy / dist) * force;
+            // Dampen back to normal speed over time
+            setTimeout(() => {
+              p.vx *= 0.1;
+              p.vy *= 0.1;
+              // Restore gentle drift
+              if (Math.abs(p.vx) < 0.05) p.vx = (Math.random() - 0.5) * SPEED;
+              if (Math.abs(p.vy) < 0.05) p.vy = (Math.random() - 0.5) * SPEED;
+            }, 800);
+          }
+        }
+      });
 
       init();
       draw();

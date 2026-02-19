@@ -1238,6 +1238,58 @@ a:focus-visible {
 }
 
 /* ========================================
+   Scroll progress petal indicator
+   ======================================== */
+
+.scroll-petal {
+  position: fixed;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  width: 36px;
+  height: 36px;
+  z-index: 500;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.scroll-petal.visible {
+  opacity: 1;
+}
+
+.scroll-petal svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Track ring */
+.petal-track {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 2.5;
+}
+
+/* Progress arc */
+.petal-progress {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke: url(#petal-gradient);
+  transform-origin: center;
+  transform: rotate(-90deg);
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+/* Center symbol */
+.petal-symbol {
+  font-size: 13px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  user-select: none;
+}
+
+/* ========================================
    Fun section 3D tilt
    ======================================== */
 
