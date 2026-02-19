@@ -20,6 +20,8 @@
 
   <main>
     <section class="hero reveal" id="hero">
+      <div class="hero-blob hero-blob-rose" aria-hidden="true"></div>
+      <div class="hero-blob hero-blob-gold" aria-hidden="true"></div>
       <div class="hero-content">
         <div class="hero-text">
           <p class="eyebrow">CS × Physics at MIT</p>
@@ -267,6 +269,37 @@
         rotatingText.classList.remove('fade-out');
       }, 400);
     }, 3000);
+
+    // === 8. Cursor Sparkle Trail ===
+    (function () {
+      const colors = ['#c45d5d', '#b8860b', '#5d8a6b', '#d4a5a5', '#d4c4a0', '#a5c4ad'];
+      const shapes = ['50%', '50%', '50%', '3px', '50%']; // mostly circles, one diamond-ish
+
+      let lastX = -999, lastY = -999;
+      const MIN_DIST = 18; // px between sparkles
+
+      window.addEventListener('mousemove', (e) => {
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        if (Math.hypot(dx, dy) < MIN_DIST) return;
+        lastX = e.clientX;
+        lastY = e.clientY;
+
+        const el = document.createElement('div');
+        el.className = 'sparkle';
+        const size = 5 + Math.random() * 6;
+        el.style.cssText = `
+          left: ${e.clientX - size / 2}px;
+          top:  ${e.clientY - size / 2}px;
+          width: ${size}px;
+          height: ${size}px;
+          background: ${colors[Math.floor(Math.random() * colors.length)]};
+          border-radius: ${shapes[Math.floor(Math.random() * shapes.length)]};
+        `;
+        document.body.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+      });
+    })();
   </script>
 </body>
 </html>
