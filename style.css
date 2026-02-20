@@ -1070,6 +1070,13 @@ a:focus-visible {
   transform: rotate(20deg);
 }
 
+/* Bold the sun icon in light mode to hint you can switch back */
+:root:not([data-theme="dark"]) .theme-toggle {
+  font-weight: 900;
+  border-color: var(--gold-muted);
+  color: var(--gold);
+}
+
 /* Scroll-triggered reveal */
 .reveal {
   opacity: 0;
