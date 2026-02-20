@@ -471,30 +471,25 @@
 
     // === 8. Cursor Sparkle Trail ===
     (function () {
-      const colors = ['#c45d5d', '#b8860b', '#5d8a6b', '#d4a5a5', '#d4c4a0', '#a5c4ad'];
-      const shapes = ['50%', '50%', '50%', '3px', '50%']; // mostly circles, one diamond-ish
-
+      // Gradient sequence: rose → gold → sage, cycling
+      const colors = ['#c45d5d', '#c47a3a', '#b8860b', '#7aaa80', '#5d8a6b'];
+      let colorIdx = 0;
       let lastX = -999, lastY = -999;
-      const MIN_DIST = 18; // px between sparkles
+      const MIN_DIST = 28; // more spacing = fewer dots
 
       window.addEventListener('mousemove', (e) => {
-        const dx = e.clientX - lastX;
-        const dy = e.clientY - lastY;
-        if (Math.hypot(dx, dy) < MIN_DIST) return;
+        if (Math.hypot(e.clientX - lastX, e.clientY - lastY) < MIN_DIST) return;
         lastX = e.clientX;
         lastY = e.clientY;
 
         const el = document.createElement('div');
         el.className = 'sparkle';
-        const size = 5 + Math.random() * 6;
         el.style.cssText = `
-          left: ${e.clientX - size / 2}px;
-          top:  ${e.clientY - size / 2}px;
-          width: ${size}px;
-          height: ${size}px;
-          background: ${colors[Math.floor(Math.random() * colors.length)]};
-          border-radius: ${shapes[Math.floor(Math.random() * shapes.length)]};
+          left: ${e.clientX - 2}px;
+          top:  ${e.clientY - 2}px;
+          background: ${colors[colorIdx % colors.length]};
         `;
+        colorIdx++;
         document.body.appendChild(el);
         el.addEventListener('animationend', () => el.remove());
       });
