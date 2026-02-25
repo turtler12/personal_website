@@ -40,6 +40,7 @@
           <li><a href="#how-does-muon-work">How Does Muon Work?</a></li>
           <li><a href="#newton-schulz">Newton–Schulz</a></li>
           <li><a href="#affine-sweep">Affine Sweep Experiments</a></li>
+          <li><a href="#next-steps">Next Steps</a></li>
           <li><a href="#citation">Citation</a></li>
         </ul>
       </aside>
@@ -156,6 +157,20 @@
             <p>Together, these results suggests that the main benefit comes from preventing singular values from becoming too small. Polar normalization and affine(1) force all singular values to be equal, aggressively reshaping the spectrum. In contrast, clamp(0.1) simply places a floor on small singular values without changing the larger ones. Since all of these approaches achieve nearly identical performance, it appears that fully compressing the spectrum is unnecessary. The key factor is avoiding spectral collapse in the weak directions.</p>
 
             <p>If this interpretation is correct, then the essential ingredient of Muon in this setting is not global spectral reshaping, but maintaining non-degenerate gradient directions. This motivates the next step: designing a cheaper mechanism that selectively pads small singular values without performing full spectral normalization.</p>
+
+            <h2 id="next-steps">Next Steps</h2>
+
+            <p>These results suggest that Muon helps mainly because it prevents singular values from getting too close to zero. If that's true, then we may not need full spectral normalization at all.</p>
+
+            <p>The next steps are:</p>
+
+            <ul>
+              <li>Find a cheaper way to prevent small singular values from collapsing.</li>
+              <li>Avoid computing full SVDs or expensive normalization steps.</li>
+              <li>Test whether simply "padding" weak directions is enough at larger model scales.</li>
+            </ul>
+
+            <p>If we can isolate the minimum mechanism needed for stability, we may be able to keep Muon's benefits while making it much more efficient.</p>
           </div>
 
           <div class="citation-block" id="citation">
