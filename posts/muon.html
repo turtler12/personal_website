@@ -17,7 +17,7 @@
       ]
     });"></script>
 </head>
-<body>
+<body class="blog-layout-page">
   <div class="grain"></div>
 
   <nav>
@@ -232,7 +232,7 @@
     // Dark mode toggle
     const toggle = document.querySelector('.theme-toggle');
     const saved = localStorage.getItem('theme');
-    document.documentElement.setAttribute('data-theme', saved ?? 'dark');
+    document.documentElement.setAttribute('data-theme', saved ?? 'light');
     function updateToggleIcon() {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       toggle.innerHTML = isDark ? '&#9788;' : '&#9790;';

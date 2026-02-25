@@ -834,6 +834,11 @@ footer {
    Article styles — wide layout with sidebar TOC
    ======================================== */
 
+/* On blog pages, widen the nav to match blog layout */
+.blog-layout-page nav {
+  max-width: 1100px;
+}
+
 /* Wider container for blog pages */
 .blog-layout {
   max-width: 1100px;

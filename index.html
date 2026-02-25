@@ -40,7 +40,7 @@
           </div>
         </div>
         <div class="hero-photo">
-          <img src="pictures/professional_picture_medha_small.jpg" alt="Photo of Medha Venkatapathy" class="portrait">
+          <img src="for_fun_pictures/professional_picture_medha_small.jpg" alt="Photo of Medha Venkatapathy" class="portrait">
         </div>
       </div>
     </section>
@@ -103,15 +103,15 @@
       <h2><span class="section-icon">03</span>For fun</h2>
       <div class="fun-grid">
         <div class="fun-item fun-item-image-only" data-lightbox>
-          <img src="pictures/animals_small.jpg" alt="Petting animals" class="fun-image-full">
+          <img src="for_fun_pictures/animals_small.jpg" alt="Petting animals" class="fun-image-full">
           <span class="fun-label">Petting animals</span>
         </div>
         <div class="fun-item fun-item-image-only" data-lightbox>
-          <img src="pictures/camel_small.jpg" alt="Riding a camel" class="fun-image-full">
+          <img src="for_fun_pictures/camel_small.jpg" alt="Riding a camel" class="fun-image-full">
           <span class="fun-label">Traveling</span>
         </div>
         <div class="fun-item fun-item-image-only" data-lightbox>
-          <img src="pictures/hiking_small.jpg" alt="Hiking" class="fun-image-full">
+          <img src="for_fun_pictures/hiking_small.jpg" alt="Hiking" class="fun-image-full">
           <span class="fun-label">Hiking</span>
         </div>
       </div>
@@ -186,8 +186,8 @@
     // === 1. Dark Mode Toggle ===
     const toggle = document.querySelector('.theme-toggle');
     const saved = localStorage.getItem('theme');
-    // Default to dark if no preference saved yet
-    document.documentElement.setAttribute('data-theme', saved ?? 'dark');
+    // Default to light if no preference saved yet
+    document.documentElement.setAttribute('data-theme', saved ?? 'light');
     function updateToggleIcon() {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       toggle.innerHTML = isDark ? '&#9788;' : '&#9790;';
