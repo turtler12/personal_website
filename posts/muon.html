@@ -105,9 +105,9 @@
 
             <h2 id="affine-sweep">Affine Sweep Experiments</h2>
 
-            <p>I began by running an affine sweep to understand how sensitive Muon is to the intercept parameter in</p>
+            <p>I began by running an affine sweep to understand how sensitive Muon is to the intercept parameter for the singular value mapping function in</p>
 
-            $$y(\sigma) = \sigma + c.$$
+            $$y(\sigma) = (1-c)\sigma + c.$$
 
             <p>I evaluated several values of $c$, including $c = 0, 0.05, 0.1, 0.5, 1$, both with and without the spectral normalization (SN) step. I ran the experiment on Karpathy's NanoCHAT (https://github.com/karpathy/nanochat). All results were verified by running on modded-nanogpt and medium gpt. The behavior observed was unexpected. When $c = 0$, training converges slowly. However, once $c$ exceeds a small threshold (approximately $0.1$), the performance stabilizes. Increasing the intercept beyond this point does not produce meaningful gains. For Muon, c = 1.</p>
 
@@ -122,7 +122,7 @@
 
             <p>In contrast, when SN is removed, the mapping becomes critical. The identity mapping, $y(\sigma) = \sigma,$, performs significantly worse. However, introducing even a small positive offset,</p>
 
-            $$y(\sigma) = \sigma + 0.1,$$
+            $$y(\sigma) = (1-0.1)\sigma + 0.1$$
 
             <p>restores performance to a level comparable with larger offsets such as $0.5$ or even $1$ (Muon). The threshold behavior seen here is consistent across different models and runs/seeds.</p>
 
