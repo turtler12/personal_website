@@ -75,12 +75,6 @@
 
             <p>Most models use some version of Adam for pretraining. But as models are getting larger, we need a higher efficiency optimizer (Muon!). Instead of treating the gradient as a large vector, Muon treats it as a matrix.</p>
 
-            <p>For a weight matrix $W$, compute its SVD: $W = U \Sigma V^\top$. Instead of updating entries independently, Muon modifies the singular values $\Sigma$ using the Newton-Schulz iteration process. The update becomes:</p>
-
-            $$W_{t+1} = U \, y(\Sigma) \, V^\top$$
-
-            <p>where $y(\cdot)$ is a mapping function applied to the singular values. For the original Muon implementation, this mapping function closely resembles the $0 \to 1$ step function. This makes Muon a geometry-aware optimizer.</p>
-
             <h2 id="how-does-muon-work">How Does Muon Work?</h2>
 
             <p>Let $G_t = \nabla W_t \in \mathbb{R}^{m \times n}$ denote the gradient of a weight matrix at step $t$. Muon performs a spectral transformation of the update matrix rather than applying element-wise scaling.</p>
