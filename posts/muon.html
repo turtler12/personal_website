@@ -48,22 +48,20 @@
       <main>
         <article>
           <header>
-            <h1>Muon</h1>
+            <h1>A new perspective on Muon</h1>
             <p class="meta">February 2026</p>
           </header>
 
           <div class="content">
             <div id="introduction">
-              <p>Over the past year, I've been studying Muon, a spectral optimizer designed for training large neural networks. Unlike standard optimizers that operate coordinate-wise, Muon operates at the level of singular values of weight matrices.</p>
+              <p>Over the past year, I've been studying Muon, a spectral optimizer designed for training large NNs. Unlike standard optimizers that operate coordinate-wise, Muon operates at the level of singular values of weight matrices.</p>
 
               <p>This post explains what Muon is actually doing, why it seems to work, and what my experiments suggest about what really matters inside Muon.</p>
             </div>
 
             <h2 id="what-is-muon">What is Muon?</h2>
 
-            <p>Optimization in deep learning has evolved in stages.</p>
-
-            <p>SGD updates parameters using the raw gradient:</p>
+            <p>Optimization in deep learning has evolved in stages. SGD updates parameters using the raw gradient:</p>
 
             $$W_{t+1} = W_t - \eta \nabla W_t$$
 
@@ -75,15 +73,9 @@
 
             $$W_{t+1} = W_t - \eta \frac{m_t}{\sqrt{v_t} + \epsilon}$$
 
-            <p>Adam improves training speed and stability by adapting learning rates per coordinate. Most models use some version of Adam for pretraining. But as models are getting larger, we need a higher efficiency optimizer (Muon!). Instead of treating the gradient as a large vector, Muon accounts for its matrix structure. It optimizes in the spectral space rather than the coordinate space.</p>
+            <p>Most models use some version of Adam for pretraining. But as models are getting larger, we need a higher efficiency optimizer (Muon!). Instead of treating the gradient as a large vector, Muon treats it as a matrix.</p>
 
-            <p>For a weight matrix $W$, compute its SVD:</p>
-
-            $$W = U \Sigma V^\top$$
-
-            <p>Instead of updating entries independently, Muon modifies the singular values $\Sigma$ using the Newton-Schulz iteration process.</p>
-
-            <p>The update becomes:</p>
+            <p>For a weight matrix $W$, compute its SVD: $W = U \Sigma V^\top$. Instead of updating entries independently, Muon modifies the singular values $\Sigma$ using the Newton-Schulz iteration process. The update becomes:</p>
 
             $$W_{t+1} = U \, y(\Sigma) \, V^\top$$
 
@@ -91,15 +83,9 @@
 
             <h2 id="how-does-muon-work">How Does Muon Work?</h2>
 
-            <p>Let $G_t = \nabla W_t \in \mathbb{R}^{m \times n}$ denote the gradient of a weight matrix at step $t$.</p>
+            <p>Let $G_t = \nabla W_t \in \mathbb{R}^{m \times n}$ denote the gradient of a weight matrix at step $t$. Muon performs a spectral transformation of the update matrix rather than applying element-wise scaling.</p>
 
-            <p>Muon performs a spectral transformation of the update matrix rather than applying element-wise scaling.</p>
-
-            <p>Compute the singular value decomposition:</p>
-
-            $$G_t = U \Sigma V^\top$$
-
-            <p>where</p>
+            <p>Compute the singular value decomposition: $G_t = U \Sigma V^\top$, where</p>
 
             $$\Sigma = \operatorname{diag}(\sigma_1, \dots, \sigma_r)$$
 
@@ -107,13 +93,7 @@
 
             $$\Sigma' = \operatorname{diag}(y(\sigma_1), \dots, y(\sigma_r))$$
 
-            <p>The transformed update becomes:</p>
-
-            $$\Delta W_t = U \Sigma' V^\top$$
-
-            <p>The parameter update is then:</p>
-
-            $$W_{t+1} = W_t - \eta \Delta W_t$$
+            <p>The transformed update becomes $\Delta W_t = U \Sigma' V^\top$ and the parameter update is $W_{t+1} = W_t - \eta \Delta W_t$</p>
 
             <p>The behavior of Muon is entirely determined by the choice of $y(\sigma)$.</p>
 
@@ -125,9 +105,7 @@
 
             $$X_{k+1} = \frac{1}{2} X_k (3I - X_k^\top X_k)$$
 
-            <p>Under appropriate normalization, this converges quadratically to the orthogonal polar factor:</p>
-
-            $$X_\infty = U V^\top$$
+            <p>Under appropriate normalization, this converges quadratically to the orthogonal polar factor $X_\infty = U V^\top$</p>
 
             <p>This enables approximate spectral normalization without explicitly computing singular values.</p>
 
@@ -137,55 +115,51 @@
 
             $$y(\sigma) = \sigma + c.$$
 
-            <p>I evaluated several values of $c$, including $c = 0, 0.05, 0.1, 0.5, 1$, both with and without the spectral normalization (SN) step. The behavior exhibits a sharp transition. When $c = 0$, training is unstable and converges poorly. However, once $c$ exceeds a small threshold (approximately $0.1$), validation performance stabilizes and becomes largely insensitive to the precise value of $c$. Increasing the intercept beyond this point does not produce meaningful gains.</p>
+            <p>I evaluated several values of $c$, including $c = 0, 0.05, 0.1, 0.5, 1$, both with and without the spectral normalization (SN) step. I ran the experiment on Karpathy's NanoCHAT (https://github.com/karpathy/nanochat). All results were verified by running on modded-nanogpt and medium gpt. The behavior observed was unexpected. When $c = 0$, training converges slowly. However, once $c$ exceeds a small threshold (approximately $0.1$), the performance stabilizes. Increasing the intercept beyond this point does not produce meaningful gains. For Muon, c = 1.</p>
 
             <figure>
               <img src="../muon_blog_pictures/affine_sweep.png" alt="Affine sweep: validation loss vs. intercept c">
               <figcaption>Affine sweep across intercept values. Performance stabilizes once c exceeds ~0.1.</figcaption>
             </figure>
 
-            <p>This already suggests that the benefit of the affine mapping is not strong spectral reshaping, but rather preventing singular values from approaching zero.</p>
+            When I ran the same experiment on modded nanogpt medium gpt, the same conclusion was reached. This suggests that the benefit of the affine mapping is not the strong spectral reshaping, but instead from preventing singular values from being zero.</p>
 
-            <p>The interaction with the SN step clarifies this further. When SN is enabled, the specific choice of mapping function has minimal impact on overall loss. Identity, affine, and clamped variants produce nearly identical validation trajectories. In this regime, the SN step dominates the spectral geometry, making the mapping function secondary.</p>
+            <p>The spectral normalization step furthers this reasoning. When SN is enabled, the exact mapping function has minimal impact on overall loss. Identity, any affine, and clamped functions produced almost the same loss. This is because the SN step dominates the spectral geometry, making the mapping function less important.</p>
 
-            <p>In contrast, when SN is removed, the mapping becomes critical. The identity mapping,</p>
-
-            $$y(\sigma) = \sigma,$$
-
-            <p>performs significantly worse. Introducing even a small positive offset,</p>
+            <p>In contrast, when SN is removed, the mapping becomes critical. The identity mapping, $y(\sigma) = \sigma,$, performs significantly worse. However, introducing even a small positive offset,</p>
 
             $$y(\sigma) = \sigma + 0.1,$$
 
-            <p>restores performance to a level comparable with larger offsets such as $0.5$ or $1$. The threshold behavior observed in the affine sweep is consistent across runs.</p>
+            <p>restores performance to a level comparable with larger offsets such as $0.5$ or even $1$ (Muon). The threshold behavior seen here is consistent across different models and runs/seeds.</p>
 
             <figure>
               <img src="../muon_blog_pictures/affine_0.1_no_sn.png" alt="Affine(0.1) without spectral normalization">
               <figcaption>Without SN, a small offset (0.1) is sufficient to restore stable training.</figcaption>
             </figure>
 
-            <p>However, the affine(0.1) mapping simultaneously pads small singular values and compresses the spectrum toward 1. To separate these effects, I evaluated a pure clamping function,</p>
+            <p>One rebuttal could be that the affine(0.1) mapping both pads small singular values and compresses the spectrum toward 1. To separate these effects, I evaluated a pure clamping function,</p>
 
             $$y(\sigma) = \max(0.1, \sigma),$$
 
             <p>which enforces a floor without altering large singular values.</p>
 
-            <p>Empirically, clamp(0.1) performs almost identically to affine(1) and Polar-style normalization, which maps all singular values to 1. Since clamp(0.1) does not compress the upper spectrum, this strongly suggests that spectral compression is not the dominant stabilizing mechanism. The critical effect is preventing small singular values from collapsing.</p>
+            <p>Empirically, clamp(0.1) performs almost identically to affine(1) and Polar-style normalization, which maps all singular values to 1. Since clamp(0.1) does not compress the higher singular values, this proves that the spectral compression is not a major stabilizing mechanism.</p>
 
             <figure>
               <img src="../muon_blog_pictures/affine_vs_clamp.png" alt="Affine vs. clamp comparison">
               <figcaption>Clamp(0.1) matches Polar and affine(1) despite not compressing the upper spectrum.</figcaption>
             </figure>
 
-            <p>To understand this more quantitatively, I examined the singular value distributions during training under the clamp mapping. In large layers, the spectrum is extremely skewed. The median singular value is approximately 2% of $\sigma_{\max}$, and even the 95th percentile often lies below the clamp threshold. This indicates that most gradient directions carry negligible energy relative to the dominant one. In such layers, clamp(0.1) effectively boosts nearly the entire spectrum.</p>
+            <p>To understand how the singular values evolve, I plotted the singular value distributions during training under the clamp mapping. In large layers, the spectrum is extremely skewed. The median singular value is around 2% of $\sigma_{\max}$, and even the 95th percentile is below the clamp threshold. This shows that most gradient directions carry negligible energy relative to the dominant one. In layers like these, clamp(0.1) basically boosts the entire spectrum.</p>
 
-            <p>In smaller layers, the distribution is more spread out, with the 95th percentile around 0.6, but the median remains low, typically between 4% and 7% of $\sigma_{\max}$. Even here, a substantial portion of singular values lies close to zero.</p>
+            <p>In smaller layers, the distribution is more spread out, with the 95th percentile around 0.6, but the median remains low, typically between 4% and 7% of $\sigma_{\max}$. Even here, most of the singular values lie close to zero.</p>
 
             <figure>
               <img src="../muon_blog_pictures/dist_SV.png" alt="Singular value distributions across layers">
               <figcaption>Singular value distributions during training. Most values cluster near zero relative to the maximum.</figcaption>
             </figure>
 
-            <p>Taken together, these results indicate that preventing singular values from becoming too small is sufficient to stabilize optimization. Polar normalization and affine(1) aggressively equalize the spectrum, while clamp(0.1) merely enforces a lower bound. Their near-identical performance implies that full spectrum compression provides little additional benefit beyond avoiding spectral collapse.</p>
+            <p>Together, these results suggests that the main benefit comes from preventing singular values from becoming too small. Polar normalization and affine(1) force all singular values to be equal, aggressively reshaping the spectrum. In contrast, clamp(0.1) simply places a floor on small singular values without changing the larger ones. Since all of these approaches achieve nearly identical performance, it appears that fully compressing the spectrum is unnecessary. The key factor is avoiding spectral collapse in the weak directions.</p>
 
             <p>If this interpretation is correct, then the essential ingredient of Muon in this setting is not global spectral reshaping, but maintaining non-degenerate gradient directions. This motivates the next step: designing a cheaper mechanism that selectively pads small singular values without performing full spectral normalization.</p>
           </div>
