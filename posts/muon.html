@@ -112,6 +112,76 @@
         $$X_\infty = U V^\top$$
 
         <p>This enables approximate spectral normalization without explicitly computing singular values.</p>
+
+        <h2>Affine Sweep Experiments</h2>
+
+        <p>I began by running an affine sweep to understand how sensitive Muon is to the intercept parameter in</p>
+
+        $$y(\sigma) = \sigma + c.$$
+
+        <p>I evaluated several values of $c$, including $c = 0, 0.05, 0.1, 0.5, 1$, both with and without the spectral normalization (SN) step. The behavior exhibits a sharp transition. When $c = 0$, training is unstable and converges poorly. However, once $c$ exceeds a small threshold (approximately $0.1$), validation performance stabilizes and becomes largely insensitive to the precise value of $c$. Increasing the intercept beyond this point does not produce meaningful gains.</p>
+
+        <figure>
+          <img src="../muon_blog_pictures/affine_sweep.png" alt="Affine sweep: validation loss vs. intercept c">
+          <figcaption>Affine sweep across intercept values. Performance stabilizes once c exceeds ~0.1.</figcaption>
+        </figure>
+
+        <p>This already suggests that the benefit of the affine mapping is not strong spectral reshaping, but rather preventing singular values from approaching zero.</p>
+
+        <p>The interaction with the SN step clarifies this further. When SN is enabled, the specific choice of mapping function has minimal impact on overall loss. Identity, affine, and clamped variants produce nearly identical validation trajectories. In this regime, the SN step dominates the spectral geometry, making the mapping function secondary.</p>
+
+        <p>In contrast, when SN is removed, the mapping becomes critical. The identity mapping,</p>
+
+        $$y(\sigma) = \sigma,$$
+
+        <p>performs significantly worse. Introducing even a small positive offset,</p>
+
+        $$y(\sigma) = \sigma + 0.1,$$
+
+        <p>restores performance to a level comparable with larger offsets such as $0.5$ or $1$. The threshold behavior observed in the affine sweep is consistent across runs.</p>
+
+        <figure>
+          <img src="../muon_blog_pictures/affine_0.1_no_sn.png" alt="Affine(0.1) without spectral normalization">
+          <figcaption>Without SN, a small offset (0.1) is sufficient to restore stable training.</figcaption>
+        </figure>
+
+        <p>However, the affine(0.1) mapping simultaneously pads small singular values and compresses the spectrum toward 1. To separate these effects, I evaluated a pure clamping function,</p>
+
+        $$y(\sigma) = \max(0.1, \sigma),$$
+
+        <p>which enforces a floor without altering large singular values.</p>
+
+        <p>Empirically, clamp(0.1) performs almost identically to affine(1) and Polar-style normalization, which maps all singular values to 1. Since clamp(0.1) does not compress the upper spectrum, this strongly suggests that spectral compression is not the dominant stabilizing mechanism. The critical effect is preventing small singular values from collapsing.</p>
+
+        <figure>
+          <img src="../muon_blog_pictures/affine_vs_clamp.png" alt="Affine vs. clamp comparison">
+          <figcaption>Clamp(0.1) matches Polar and affine(1) despite not compressing the upper spectrum.</figcaption>
+        </figure>
+
+        <p>To understand this more quantitatively, I examined the singular value distributions during training under the clamp mapping. In large layers, the spectrum is extremely skewed. The median singular value is approximately 2% of $\sigma_{\max}$, and even the 95th percentile often lies below the clamp threshold. This indicates that most gradient directions carry negligible energy relative to the dominant one. In such layers, clamp(0.1) effectively boosts nearly the entire spectrum.</p>
+
+        <p>In smaller layers, the distribution is more spread out, with the 95th percentile around 0.6, but the median remains low, typically between 4% and 7% of $\sigma_{\max}$. Even here, a substantial portion of singular values lies close to zero.</p>
+
+        <figure>
+          <img src="../muon_blog_pictures/dist_SV.png" alt="Singular value distributions across layers">
+          <figcaption>Singular value distributions during training. Most values cluster near zero relative to the maximum.</figcaption>
+        </figure>
+
+        <p>Taken together, these results indicate that preventing singular values from becoming too small is sufficient to stabilize optimization. Polar normalization and affine(1) aggressively equalize the spectrum, while clamp(0.1) merely enforces a lower bound. Their near-identical performance implies that full spectrum compression provides little additional benefit beyond avoiding spectral collapse.</p>
+
+        <p>If this interpretation is correct, then the essential ingredient of Muon in this setting is not global spectral reshaping, but maintaining non-degenerate gradient directions. This motivates the next step: designing a cheaper mechanism that selectively pads small singular values without performing full spectral normalization.</p>
+      </div>
+
+      <div class="citation-block">
+        <h2>Cite this post</h2>
+        <div class="citation-code" id="citation-text">@misc{venkatapathy2026muon,
+  author = {Venkatapathy, Medha},
+  title  = {Muon: Understanding Spectral Optimization},
+  year   = {2026},
+  month  = {February},
+  url    = {https://medhav.com/posts/muon.html}
+}</div>
+        <button class="citation-copy" id="cite-copy" onclick="navigator.clipboard.writeText(document.getElementById('citation-text').textContent).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)})">Copy</button>
       </div>
 
       <a href="/blog.html" class="back-link">&larr; Back to blog</a>
