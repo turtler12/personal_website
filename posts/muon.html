@@ -70,6 +70,48 @@
         $$W_{t+1} = U \, y(\Sigma) \, V^\top$$
 
         <p>where $y(\cdot)$ is a mapping function applied to the singular values. For the original Muon implementation, this mapping function closely resembles the $0 \to 1$ step function. This makes Muon a geometry-aware optimizer.</p>
+
+        <h2>How Does Muon Work?</h2>
+
+        <p>Let $G_t = \nabla W_t \in \mathbb{R}^{m \times n}$ denote the gradient of a weight matrix at step $t$.</p>
+
+        <p>Muon performs a spectral transformation of the update matrix rather than applying element-wise scaling.</p>
+
+        <p>Compute the singular value decomposition:</p>
+
+        $$G_t = U \Sigma V^\top$$
+
+        <p>where</p>
+
+        $$\Sigma = \operatorname{diag}(\sigma_1, \dots, \sigma_r)$$
+
+        <p>A mapping function $y : \mathbb{R}_{\ge 0} \to \mathbb{R}_{\ge 0}$ is applied to the singular values:</p>
+
+        $$\Sigma' = \operatorname{diag}(y(\sigma_1), \dots, y(\sigma_r))$$
+
+        <p>The transformed update becomes:</p>
+
+        $$\Delta W_t = U \Sigma' V^\top$$
+
+        <p>The parameter update is then:</p>
+
+        $$W_{t+1} = W_t - \eta \Delta W_t$$
+
+        <p>The behavior of Muon is entirely determined by the choice of $y(\sigma)$.</p>
+
+        <h2>Newton–Schulz Approximation</h2>
+
+        <p>Computing full SVDs at each step is expensive. In practice, Muon often uses a Newton–Schulz iteration to approximate the polar factor.</p>
+
+        <p>Given a matrix $X_0$, iterate:</p>
+
+        $$X_{k+1} = \frac{1}{2} X_k (3I - X_k^\top X_k)$$
+
+        <p>Under appropriate normalization, this converges quadratically to the orthogonal polar factor:</p>
+
+        $$X_\infty = U V^\top$$
+
+        <p>This enables approximate spectral normalization without explicitly computing singular values.</p>
       </div>
 
       <a href="/blog.html" class="back-link">&larr; Back to blog</a>
