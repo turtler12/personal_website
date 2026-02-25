@@ -29,164 +29,184 @@
     </div>
   </nav>
 
-  <main>
-    <article>
-      <header>
-        <h1>Muon</h1>
-        <p class="meta">February 2026</p>
-      </header>
+  <div class="blog-layout">
+    <div class="article-wrapper">
 
-      <div class="content">
-        <p>Over the past year, I've been studying Muon, a spectral optimizer designed for training large neural networks. Unlike standard optimizers that operate coordinate-wise, Muon operates at the level of singular values of weight matrices.</p>
+      <!-- Sidebar TOC -->
+      <aside class="article-toc" aria-label="Table of contents">
+        <ul>
+          <li><a href="#introduction">Introduction</a></li>
+          <li><a href="#what-is-muon">What is Muon?</a></li>
+          <li><a href="#how-does-muon-work">How Does Muon Work?</a></li>
+          <li><a href="#newton-schulz">Newton–Schulz</a></li>
+          <li><a href="#affine-sweep">Affine Sweep Experiments</a></li>
+          <li><a href="#citation">Citation</a></li>
+        </ul>
+      </aside>
 
-        <p>This post explains what Muon is actually doing, why it seems to work, and what my experiments suggest about what really matters inside Muon.</p>
+      <!-- Article -->
+      <main>
+        <article>
+          <header>
+            <h1>Muon</h1>
+            <p class="meta">February 2026</p>
+          </header>
 
-        <h2>What is Muon?</h2>
+          <div class="content">
+            <div id="introduction">
+              <p>Over the past year, I've been studying Muon, a spectral optimizer designed for training large neural networks. Unlike standard optimizers that operate coordinate-wise, Muon operates at the level of singular values of weight matrices.</p>
 
-        <p>Optimization in deep learning has evolved in stages.</p>
+              <p>This post explains what Muon is actually doing, why it seems to work, and what my experiments suggest about what really matters inside Muon.</p>
+            </div>
 
-        <p>SGD updates parameters using the raw gradient:</p>
+            <h2 id="what-is-muon">What is Muon?</h2>
 
-        $$W_{t+1} = W_t - \eta \nabla W_t$$
+            <p>Optimization in deep learning has evolved in stages.</p>
 
-        <p>It treats every coordinate equally. While it is simple and stable, it is sensitive to conditioning. To solve this, Adam was created which rescales each coordinate adaptively:</p>
+            <p>SGD updates parameters using the raw gradient:</p>
 
-        $$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$$
+            $$W_{t+1} = W_t - \eta \nabla W_t$$
 
-        $$v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$$
+            <p>It treats every coordinate equally. While it is simple and stable, it is sensitive to conditioning. To solve this, Adam was created which rescales each coordinate adaptively:</p>
 
-        $$W_{t+1} = W_t - \eta \frac{m_t}{\sqrt{v_t} + \epsilon}$$
+            $$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$$
 
-        <p>Adam improves training speed and stability by adapting learning rates per coordinate. Most models use some version of Adam for pretraining. But as models are getting larger, we need a higher efficiency optimizer (Muon!). Instead of treating the gradient as a large vector, Muon accounts for its matrix structure. It optimizes in the spectral space rather than the coordinate space.</p>
+            $$v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$$
 
-        <p>For a weight matrix $W$, compute its SVD:</p>
+            $$W_{t+1} = W_t - \eta \frac{m_t}{\sqrt{v_t} + \epsilon}$$
 
-        $$W = U \Sigma V^\top$$
+            <p>Adam improves training speed and stability by adapting learning rates per coordinate. Most models use some version of Adam for pretraining. But as models are getting larger, we need a higher efficiency optimizer (Muon!). Instead of treating the gradient as a large vector, Muon accounts for its matrix structure. It optimizes in the spectral space rather than the coordinate space.</p>
 
-        <p>Instead of updating entries independently, Muon modifies the singular values $\Sigma$ using the Newton-Schulz iteration process.</p>
+            <p>For a weight matrix $W$, compute its SVD:</p>
 
-        <p>The update becomes:</p>
+            $$W = U \Sigma V^\top$$
 
-        $$W_{t+1} = U \, y(\Sigma) \, V^\top$$
+            <p>Instead of updating entries independently, Muon modifies the singular values $\Sigma$ using the Newton-Schulz iteration process.</p>
 
-        <p>where $y(\cdot)$ is a mapping function applied to the singular values. For the original Muon implementation, this mapping function closely resembles the $0 \to 1$ step function. This makes Muon a geometry-aware optimizer.</p>
+            <p>The update becomes:</p>
 
-        <h2>How Does Muon Work?</h2>
+            $$W_{t+1} = U \, y(\Sigma) \, V^\top$$
 
-        <p>Let $G_t = \nabla W_t \in \mathbb{R}^{m \times n}$ denote the gradient of a weight matrix at step $t$.</p>
+            <p>where $y(\cdot)$ is a mapping function applied to the singular values. For the original Muon implementation, this mapping function closely resembles the $0 \to 1$ step function. This makes Muon a geometry-aware optimizer.</p>
 
-        <p>Muon performs a spectral transformation of the update matrix rather than applying element-wise scaling.</p>
+            <h2 id="how-does-muon-work">How Does Muon Work?</h2>
 
-        <p>Compute the singular value decomposition:</p>
+            <p>Let $G_t = \nabla W_t \in \mathbb{R}^{m \times n}$ denote the gradient of a weight matrix at step $t$.</p>
 
-        $$G_t = U \Sigma V^\top$$
+            <p>Muon performs a spectral transformation of the update matrix rather than applying element-wise scaling.</p>
 
-        <p>where</p>
+            <p>Compute the singular value decomposition:</p>
 
-        $$\Sigma = \operatorname{diag}(\sigma_1, \dots, \sigma_r)$$
+            $$G_t = U \Sigma V^\top$$
 
-        <p>A mapping function $y : \mathbb{R}_{\ge 0} \to \mathbb{R}_{\ge 0}$ is applied to the singular values:</p>
+            <p>where</p>
 
-        $$\Sigma' = \operatorname{diag}(y(\sigma_1), \dots, y(\sigma_r))$$
+            $$\Sigma = \operatorname{diag}(\sigma_1, \dots, \sigma_r)$$
 
-        <p>The transformed update becomes:</p>
+            <p>A mapping function $y : \mathbb{R}_{\ge 0} \to \mathbb{R}_{\ge 0}$ is applied to the singular values:</p>
 
-        $$\Delta W_t = U \Sigma' V^\top$$
+            $$\Sigma' = \operatorname{diag}(y(\sigma_1), \dots, y(\sigma_r))$$
 
-        <p>The parameter update is then:</p>
+            <p>The transformed update becomes:</p>
 
-        $$W_{t+1} = W_t - \eta \Delta W_t$$
+            $$\Delta W_t = U \Sigma' V^\top$$
 
-        <p>The behavior of Muon is entirely determined by the choice of $y(\sigma)$.</p>
+            <p>The parameter update is then:</p>
 
-        <h2>Newton–Schulz Approximation</h2>
+            $$W_{t+1} = W_t - \eta \Delta W_t$$
 
-        <p>Computing full SVDs at each step is expensive. In practice, Muon often uses a Newton–Schulz iteration to approximate the polar factor.</p>
+            <p>The behavior of Muon is entirely determined by the choice of $y(\sigma)$.</p>
 
-        <p>Given a matrix $X_0$, iterate:</p>
+            <h2 id="newton-schulz">Newton–Schulz Approximation</h2>
 
-        $$X_{k+1} = \frac{1}{2} X_k (3I - X_k^\top X_k)$$
+            <p>Computing full SVDs at each step is expensive. In practice, Muon often uses a Newton–Schulz iteration to approximate the polar factor.</p>
 
-        <p>Under appropriate normalization, this converges quadratically to the orthogonal polar factor:</p>
+            <p>Given a matrix $X_0$, iterate:</p>
 
-        $$X_\infty = U V^\top$$
+            $$X_{k+1} = \frac{1}{2} X_k (3I - X_k^\top X_k)$$
 
-        <p>This enables approximate spectral normalization without explicitly computing singular values.</p>
+            <p>Under appropriate normalization, this converges quadratically to the orthogonal polar factor:</p>
 
-        <h2>Affine Sweep Experiments</h2>
+            $$X_\infty = U V^\top$$
 
-        <p>I began by running an affine sweep to understand how sensitive Muon is to the intercept parameter in</p>
+            <p>This enables approximate spectral normalization without explicitly computing singular values.</p>
 
-        $$y(\sigma) = \sigma + c.$$
+            <h2 id="affine-sweep">Affine Sweep Experiments</h2>
 
-        <p>I evaluated several values of $c$, including $c = 0, 0.05, 0.1, 0.5, 1$, both with and without the spectral normalization (SN) step. The behavior exhibits a sharp transition. When $c = 0$, training is unstable and converges poorly. However, once $c$ exceeds a small threshold (approximately $0.1$), validation performance stabilizes and becomes largely insensitive to the precise value of $c$. Increasing the intercept beyond this point does not produce meaningful gains.</p>
+            <p>I began by running an affine sweep to understand how sensitive Muon is to the intercept parameter in</p>
 
-        <figure>
-          <img src="../muon_blog_pictures/affine_sweep.png" alt="Affine sweep: validation loss vs. intercept c">
-          <figcaption>Affine sweep across intercept values. Performance stabilizes once c exceeds ~0.1.</figcaption>
-        </figure>
+            $$y(\sigma) = \sigma + c.$$
 
-        <p>This already suggests that the benefit of the affine mapping is not strong spectral reshaping, but rather preventing singular values from approaching zero.</p>
+            <p>I evaluated several values of $c$, including $c = 0, 0.05, 0.1, 0.5, 1$, both with and without the spectral normalization (SN) step. The behavior exhibits a sharp transition. When $c = 0$, training is unstable and converges poorly. However, once $c$ exceeds a small threshold (approximately $0.1$), validation performance stabilizes and becomes largely insensitive to the precise value of $c$. Increasing the intercept beyond this point does not produce meaningful gains.</p>
 
-        <p>The interaction with the SN step clarifies this further. When SN is enabled, the specific choice of mapping function has minimal impact on overall loss. Identity, affine, and clamped variants produce nearly identical validation trajectories. In this regime, the SN step dominates the spectral geometry, making the mapping function secondary.</p>
+            <figure>
+              <img src="../muon_blog_pictures/affine_sweep.png" alt="Affine sweep: validation loss vs. intercept c">
+              <figcaption>Affine sweep across intercept values. Performance stabilizes once c exceeds ~0.1.</figcaption>
+            </figure>
 
-        <p>In contrast, when SN is removed, the mapping becomes critical. The identity mapping,</p>
+            <p>This already suggests that the benefit of the affine mapping is not strong spectral reshaping, but rather preventing singular values from approaching zero.</p>
 
-        $$y(\sigma) = \sigma,$$
+            <p>The interaction with the SN step clarifies this further. When SN is enabled, the specific choice of mapping function has minimal impact on overall loss. Identity, affine, and clamped variants produce nearly identical validation trajectories. In this regime, the SN step dominates the spectral geometry, making the mapping function secondary.</p>
 
-        <p>performs significantly worse. Introducing even a small positive offset,</p>
+            <p>In contrast, when SN is removed, the mapping becomes critical. The identity mapping,</p>
 
-        $$y(\sigma) = \sigma + 0.1,$$
+            $$y(\sigma) = \sigma,$$
 
-        <p>restores performance to a level comparable with larger offsets such as $0.5$ or $1$. The threshold behavior observed in the affine sweep is consistent across runs.</p>
+            <p>performs significantly worse. Introducing even a small positive offset,</p>
 
-        <figure>
-          <img src="../muon_blog_pictures/affine_0.1_no_sn.png" alt="Affine(0.1) without spectral normalization">
-          <figcaption>Without SN, a small offset (0.1) is sufficient to restore stable training.</figcaption>
-        </figure>
+            $$y(\sigma) = \sigma + 0.1,$$
 
-        <p>However, the affine(0.1) mapping simultaneously pads small singular values and compresses the spectrum toward 1. To separate these effects, I evaluated a pure clamping function,</p>
+            <p>restores performance to a level comparable with larger offsets such as $0.5$ or $1$. The threshold behavior observed in the affine sweep is consistent across runs.</p>
 
-        $$y(\sigma) = \max(0.1, \sigma),$$
+            <figure>
+              <img src="../muon_blog_pictures/affine_0.1_no_sn.png" alt="Affine(0.1) without spectral normalization">
+              <figcaption>Without SN, a small offset (0.1) is sufficient to restore stable training.</figcaption>
+            </figure>
 
-        <p>which enforces a floor without altering large singular values.</p>
+            <p>However, the affine(0.1) mapping simultaneously pads small singular values and compresses the spectrum toward 1. To separate these effects, I evaluated a pure clamping function,</p>
 
-        <p>Empirically, clamp(0.1) performs almost identically to affine(1) and Polar-style normalization, which maps all singular values to 1. Since clamp(0.1) does not compress the upper spectrum, this strongly suggests that spectral compression is not the dominant stabilizing mechanism. The critical effect is preventing small singular values from collapsing.</p>
+            $$y(\sigma) = \max(0.1, \sigma),$$
 
-        <figure>
-          <img src="../muon_blog_pictures/affine_vs_clamp.png" alt="Affine vs. clamp comparison">
-          <figcaption>Clamp(0.1) matches Polar and affine(1) despite not compressing the upper spectrum.</figcaption>
-        </figure>
+            <p>which enforces a floor without altering large singular values.</p>
 
-        <p>To understand this more quantitatively, I examined the singular value distributions during training under the clamp mapping. In large layers, the spectrum is extremely skewed. The median singular value is approximately 2% of $\sigma_{\max}$, and even the 95th percentile often lies below the clamp threshold. This indicates that most gradient directions carry negligible energy relative to the dominant one. In such layers, clamp(0.1) effectively boosts nearly the entire spectrum.</p>
+            <p>Empirically, clamp(0.1) performs almost identically to affine(1) and Polar-style normalization, which maps all singular values to 1. Since clamp(0.1) does not compress the upper spectrum, this strongly suggests that spectral compression is not the dominant stabilizing mechanism. The critical effect is preventing small singular values from collapsing.</p>
 
-        <p>In smaller layers, the distribution is more spread out, with the 95th percentile around 0.6, but the median remains low, typically between 4% and 7% of $\sigma_{\max}$. Even here, a substantial portion of singular values lies close to zero.</p>
+            <figure>
+              <img src="../muon_blog_pictures/affine_vs_clamp.png" alt="Affine vs. clamp comparison">
+              <figcaption>Clamp(0.1) matches Polar and affine(1) despite not compressing the upper spectrum.</figcaption>
+            </figure>
 
-        <figure>
-          <img src="../muon_blog_pictures/dist_SV.png" alt="Singular value distributions across layers">
-          <figcaption>Singular value distributions during training. Most values cluster near zero relative to the maximum.</figcaption>
-        </figure>
+            <p>To understand this more quantitatively, I examined the singular value distributions during training under the clamp mapping. In large layers, the spectrum is extremely skewed. The median singular value is approximately 2% of $\sigma_{\max}$, and even the 95th percentile often lies below the clamp threshold. This indicates that most gradient directions carry negligible energy relative to the dominant one. In such layers, clamp(0.1) effectively boosts nearly the entire spectrum.</p>
 
-        <p>Taken together, these results indicate that preventing singular values from becoming too small is sufficient to stabilize optimization. Polar normalization and affine(1) aggressively equalize the spectrum, while clamp(0.1) merely enforces a lower bound. Their near-identical performance implies that full spectrum compression provides little additional benefit beyond avoiding spectral collapse.</p>
+            <p>In smaller layers, the distribution is more spread out, with the 95th percentile around 0.6, but the median remains low, typically between 4% and 7% of $\sigma_{\max}$. Even here, a substantial portion of singular values lies close to zero.</p>
 
-        <p>If this interpretation is correct, then the essential ingredient of Muon in this setting is not global spectral reshaping, but maintaining non-degenerate gradient directions. This motivates the next step: designing a cheaper mechanism that selectively pads small singular values without performing full spectral normalization.</p>
-      </div>
+            <figure>
+              <img src="../muon_blog_pictures/dist_SV.png" alt="Singular value distributions across layers">
+              <figcaption>Singular value distributions during training. Most values cluster near zero relative to the maximum.</figcaption>
+            </figure>
 
-      <div class="citation-block">
-        <h2>Cite this post</h2>
-        <div class="citation-code" id="citation-text">@misc{venkatapathy2026muon,
+            <p>Taken together, these results indicate that preventing singular values from becoming too small is sufficient to stabilize optimization. Polar normalization and affine(1) aggressively equalize the spectrum, while clamp(0.1) merely enforces a lower bound. Their near-identical performance implies that full spectrum compression provides little additional benefit beyond avoiding spectral collapse.</p>
+
+            <p>If this interpretation is correct, then the essential ingredient of Muon in this setting is not global spectral reshaping, but maintaining non-degenerate gradient directions. This motivates the next step: designing a cheaper mechanism that selectively pads small singular values without performing full spectral normalization.</p>
+          </div>
+
+          <div class="citation-block" id="citation">
+            <h2>Cite this post</h2>
+            <div class="citation-code" id="citation-text">@misc{venkatapathy2026muon,
   author = {Venkatapathy, Medha},
   title  = {Muon: Understanding Spectral Optimization},
   year   = {2026},
   month  = {February},
   url    = {https://medhav.com/posts/muon.html}
 }</div>
-        <button class="citation-copy" id="cite-copy" onclick="navigator.clipboard.writeText(document.getElementById('citation-text').textContent).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)})">Copy</button>
-      </div>
+            <button class="citation-copy" id="cite-copy" onclick="navigator.clipboard.writeText(document.getElementById('citation-text').textContent).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)})">Copy</button>
+          </div>
 
-      <a href="/blog.html" class="back-link">&larr; Back to blog</a>
-    </article>
-  </main>
+          <a href="/blog.html" class="back-link">&larr; Back to blog</a>
+        </article>
+      </main>
+    </div>
+  </div>
 
   <footer>
     <div class="footer-content">
@@ -204,8 +224,12 @@
     </div>
   </footer>
 
+  <!-- Edit button (hidden by default, shown after auth) -->
+  <button class="edit-toggle" id="edit-toggle">Edit</button>
+  <button class="edit-save" id="edit-save">Save</button>
+
   <script>
-    // Dark mode toggle (same as main site)
+    // Dark mode toggle
     const toggle = document.querySelector('.theme-toggle');
     const saved = localStorage.getItem('theme');
     document.documentElement.setAttribute('data-theme', saved ?? 'dark');
@@ -221,6 +245,82 @@
       localStorage.setItem('theme', next);
       updateToggleIcon();
     });
+
+    // TOC active highlighting
+    (function () {
+      const tocLinks = document.querySelectorAll('.article-toc a');
+      const headings = [];
+
+      tocLinks.forEach(link => {
+        const id = link.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if (el) headings.push({ el, link });
+      });
+
+      window.addEventListener('scroll', () => {
+        let current = headings[0];
+        for (const h of headings) {
+          if (h.el.getBoundingClientRect().top <= 120) current = h;
+        }
+        tocLinks.forEach(l => l.classList.remove('toc-active'));
+        if (current) current.link.classList.add('toc-active');
+      });
+    })();
+
+    // Edit mode — secret access via ?edit or triple-click on title
+    (function () {
+      const editBtn = document.getElementById('edit-toggle');
+      const saveBtn = document.getElementById('edit-save');
+      const content = document.querySelector('.content');
+      let editing = false;
+
+      // Show edit button if ?edit is in URL and user authenticates
+      function tryEnableEdit() {
+        const key = prompt('Enter edit password:');
+        if (key === 'medha') {
+          editBtn.style.display = 'block';
+          localStorage.setItem('blog-edit-auth', '1');
+        }
+      }
+
+      // Auto-show if previously authenticated in this session
+      if (localStorage.getItem('blog-edit-auth') === '1') {
+        editBtn.style.display = 'block';
+      }
+
+      // Triple-click title or ?edit URL param to trigger auth
+      if (new URLSearchParams(window.location.search).has('edit')) {
+        tryEnableEdit();
+      }
+
+      document.querySelector('article h1').addEventListener('dblclick', tryEnableEdit);
+
+      editBtn.addEventListener('click', () => {
+        editing = !editing;
+        editBtn.classList.toggle('active', editing);
+        editBtn.textContent = editing ? 'Editing' : 'Edit';
+        document.body.classList.toggle('editing', editing);
+        saveBtn.style.display = editing ? 'block' : 'none';
+
+        // Make all paragraphs and headings editable
+        content.querySelectorAll('p, h2, li, figcaption').forEach(el => {
+          el.contentEditable = editing ? 'true' : 'false';
+        });
+      });
+
+      saveBtn.addEventListener('click', () => {
+        // Download as HTML fragment
+        const html = content.innerHTML;
+        const blob = new Blob([html], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'muon-content.html';
+        a.click();
+        URL.revokeObjectURL(a.href);
+        saveBtn.textContent = 'Downloaded!';
+        setTimeout(() => saveBtn.textContent = 'Save', 1500);
+      });
+    })();
   </script>
 </body>
 </html>
