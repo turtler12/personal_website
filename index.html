@@ -122,21 +122,17 @@
     <div class="footer-content">
       <p class="footer-tagline">Reach out!</p>
       <div class="footer-links">
-        <a href="#" class="footer-link" id="email-copy">
-          <span class="footer-label">Email</span>
-          <span>medhaven@mit.edu</span>
+        <a href="mailto:medhaven@mit.edu" class="footer-link">
+          <span>Email</span>
         </a>
         <a href="https://www.linkedin.com/in/medhav/" target="_blank" rel="noopener" class="footer-link">
-          <span class="footer-label">LinkedIn</span>
-          <span>/medhav</span>
+          <span>LinkedIn</span>
         </a>
         <a href="#" onclick="promptForCV(event)" class="footer-link">
-          <span class="footer-label">CV</span>
-          <span>View CV</span>
+          <span>CV</span>
         </a>
         <a href="https://github.com/turtler12" target="_blank" rel="noopener" class="footer-link">
-          <span class="footer-label">GitHub</span>
-          <span>/turtler12</span>
+          <span>GitHub</span>
         </a>
       </div>
     </div>
@@ -213,18 +209,7 @@
     }, { threshold: 0.15 });
     reveals.forEach(el => revealObserver.observe(el));
 
-    // === 3. Copy-to-Clipboard Email ===
-    const emailLink = document.getElementById('email-copy');
-    const toast = document.getElementById('toast');
-    emailLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      navigator.clipboard.writeText('medhaven@mit.edu').then(() => {
-        toast.classList.add('toast-visible');
-        setTimeout(() => toast.classList.remove('toast-visible'), 2000);
-      });
-    });
-
-    // === 4. Active Nav Highlighting ===
+    // === 3. Active Nav Highlighting ===
     const navLinks = document.querySelectorAll('.nav-links a[data-section]');
     const sections = document.querySelectorAll('section[id]');
     const navObserver = new IntersectionObserver((entries) => {
