@@ -846,12 +846,14 @@ footer {
   padding-top: 2rem;
 }
 
-/* Sidebar TOC — fixed to left edge of screen */
+/* Sidebar TOC — fixed, right-aligned flush with the left edge of centered content */
 .article-toc {
   position: fixed;
   top: 5rem;
-  left: 2rem;
+  /* Position so right edge of TOC meets left edge of centered 900px+4rem content */
+  left: calc((100vw - 900px - 4rem) / 2 - 180px - 1.5rem);
   width: 180px;
+  text-align: right;
 }
 
 @media (max-width: 900px) {
