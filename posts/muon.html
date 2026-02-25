@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Muon – Medha Venkatapathy</title>
+  <meta name="description" content="What Muon is actually doing, why it works, and what my experiments suggest about spectral optimization.">
+  <link rel="stylesheet" href="../style.css">
+  <!-- KaTeX for math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+      ]
+    });"></script>
+</head>
+<body>
+  <div class="grain"></div>
+
+  <nav>
+    <a href="/" class="nav-name">medha</a>
+    <div class="nav-links">
+      <a href="/blog.html">blog</a>
+      <a href="mailto:medhaven@mit.edu">contact</a>
+      <button class="theme-toggle" aria-label="Toggle dark mode">&#9790;</button>
+    </div>
+  </nav>
+
+  <main>
+    <article>
+      <header>
+        <h1>Muon</h1>
+        <p class="meta">February 2026</p>
+      </header>
+
+      <div class="content">
+        <p>Over the past year, I've been studying Muon, a spectral optimizer designed for training large neural networks. Unlike standard optimizers that operate coordinate-wise, Muon operates at the level of singular values of weight matrices.</p>
+
+        <p>This post explains what Muon is actually doing, why it seems to work, and what my experiments suggest about what really matters inside Muon.</p>
+
+        <h2>What is Muon?</h2>
+
+        <p>Optimization in deep learning has evolved in stages.</p>
+
+        <p>SGD updates parameters using the raw gradient:</p>
+
+        $$W_{t+1} = W_t - \eta \nabla W_t$$
+
+        <p>It treats every coordinate equally. While it is simple and stable, it is sensitive to conditioning. To solve this, Adam was created which rescales each coordinate adaptively:</p>
+
+        $$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$$
+
+        $$v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$$
+
+        $$W_{t+1} = W_t - \eta \frac{m_t}{\sqrt{v_t} + \epsilon}$$
+
+        <p>Adam improves training speed and stability by adapting learning rates per coordinate. Most models use some version of Adam for pretraining. But as models are getting larger, we need a higher efficiency optimizer (Muon!). Instead of treating the gradient as a large vector, Muon accounts for its matrix structure. It optimizes in the spectral space rather than the coordinate space.</p>
+
+        <p>For a weight matrix $W$, compute its SVD:</p>
+
+        $$W = U \Sigma V^\top$$
+
+        <p>Instead of updating entries independently, Muon modifies the singular values $\Sigma$ using the Newton-Schulz iteration process.</p>
+
+        <p>The update becomes:</p>
+
+        $$W_{t+1} = U \, y(\Sigma) \, V^\top$$
+
+        <p>where $y(\cdot)$ is a mapping function applied to the singular values. For the original Muon implementation, this mapping function closely resembles the $0 \to 1$ step function. This makes Muon a geometry-aware optimizer.</p>
+      </div>
+
+      <a href="/blog.html" class="back-link">&larr; Back to blog</a>
+    </article>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p class="footer-tagline">Reach out!</p>
+      <div class="footer-links">
+        <a href="mailto:medhaven@mit.edu" class="footer-link">
+          <span class="footer-label">Email</span>
+          <span>medhaven@mit.edu</span>
+        </a>
+        <a href="https://www.linkedin.com/in/medhav/" target="_blank" rel="noopener" class="footer-link">
+          <span class="footer-label">LinkedIn</span>
+          <span>/medhav</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Dark mode toggle (same as main site)
+    const toggle = document.querySelector('.theme-toggle');
+    const saved = localStorage.getItem('theme');
+    document.documentElement.setAttribute('data-theme', saved ?? 'dark');
+    function updateToggleIcon() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      toggle.innerHTML = isDark ? '&#9788;' : '&#9790;';
+    }
+    updateToggleIcon();
+    toggle.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const next = isDark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateToggleIcon();
+    });
+  </script>
+</body>
+</html>
