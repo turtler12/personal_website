@@ -108,7 +108,7 @@
 
             <p>The transformed update becomes $\Delta W_t = U \Sigma' V^\top$ and the parameter update is $W_{t+1} = W_t - \eta \Delta W_t$</p>
 
-            <p>The behavior of Muon is entirely determined by the choice of $y(\sigma)$. In the standard Muon implementation, $y(\sigma) = 1$ for all $\sigma$, meaning every singular value is mapped to the same constant. This corresponds to replacing the gradient with its orthogonal polar factor, completely discarding the original spectrum. A natural question is whether this aggressive reshaping is truly necessary — or whether something milder would suffice.</p>
+            <p>The behavior of Muon is entirely determined by the choice of $y(\sigma)$. In the standard Muon implementation, $y(\sigma) = 1$ for all $\sigma$, meaning every singular value is mapped to the same constant. This corresponds to replacing the gradient with its orthogonal polar factor, completely discarding the original spectrum. A natural question is whether this aggressive reshaping is actually necessary, or whether something milder/more efficient would suffice.</p>
 
             <h2 id="newton-schulz">Newton–Schulz Approximation</h2>
 
@@ -128,18 +128,18 @@
 
             $$y(\sigma) = (1-c)\sigma + c.$$
 
-            <p>I evaluated several values of $c$, including $c = 0, 0.05, 0.1, 0.5, 1$, both with and without the spectral normalization (SN) step. I ran the experiment on Karpathy's NanoCHAT (https://github.com/karpathy/nanochat). All results were verified by running on modded-nanogpt and medium gpt. The behavior observed was unexpected. When $c = 0$, training converges slowly. However, once $c$ exceeds a small threshold (approximately $0.1$), the performance stabilizes. Increasing the intercept beyond this point does not produce meaningful gains. For Muon, c = 1.</p>
+            <p>I evaluated several values of $c$, including $c = 0, 0.05, 0.1, 0.5, 1$, both with and without the spectral normalization (SN) step. I ran the experiment on Karpathy's <a href="https://github.com/karpathy/nanochat" target="_blank" rel="noopener">NanoCHAT</a>. All results were verified by running on <a href="https://github.com/KellerJordan/modded-nanogpt" target="_blank" rel="noopener">Modded NanoGPT</a>and it's Medium GPT model. The behavior observed was unexpected. When $c = 0$, training converges slowly. However, once $c$ exceeds a small threshold (approximately $0.1$), the performance stabilizes. Increasing the intercept beyond this point does not produce meaningful gains. For Muon, c = 1.</p>
 
             <figure>
               <img src="../muon_blog_pictures/affine_sweep.png" alt="Affine sweep: validation loss vs. intercept c">
               <figcaption>Affine sweep across intercept values. Performance stabilizes once c exceeds ~0.1.</figcaption>
             </figure>
 
-            When I ran the same experiment on modded nanogpt medium gpt, the same conclusion was reached. This suggests that the benefit of the affine mapping is not the strong spectral reshaping, but instead from preventing singular values from being zero.</p>
+            When I ran the same experiment on modded nanogpt and medium gpt, the same conclusion was reached. This suggests that the benefit of the affine mapping is not the strong spectral reshaping, but instead from preventing singular values from being zero.</p>
 
             <p>The spectral normalization step furthers this reasoning. When SN is enabled, the exact mapping function has minimal impact on overall loss. Identity, any affine, and clamped functions produced almost the same loss. This is because the SN step dominates the spectral geometry, making the mapping function less important.</p>
 
-            <p>In contrast, when SN is removed, the mapping becomes critical. The identity mapping, $y(\sigma) = \sigma$, performs significantly worse. However, introducing even a small positive offset,</p>
+            <p>However, when SN is removed, the mapping becomes critical. The identity mapping, $y(\sigma) = \sigma$, performs significantly worse. However, introducing even a small positive offset,</p>
 
             $$y(\sigma) = (1-0.1)\sigma + 0.1$$
 
@@ -163,7 +163,7 @@
               <figcaption>Clamp(0.1) matches Polar and affine(1) despite not compressing the upper spectrum.</figcaption>
             </figure>
 
-            <p>These findings raise a natural question: if clamping at 0.1 is enough, how much of the spectrum is actually being affected? To answer this, I plotted the singular value distributions during training under the clamp mapping. The results reveal why clamping works so well — the gradient spectra are so skewed that a floor at 0.1 ends up boosting the vast majority of singular values anyway.</p>
+            <p>These findings raise a natural question: if clamping at 0.1 is enough, how much of the spectrum is actually being affected? To answer this, I plotted the singular value distributions during training under the clamp mapping. The results reveal why clamping works so well - the gradient spectra are so skewed that a floor of 0.1 ends up boosting the most of the singular values anyway.</p>
 
             <p>In large layers, the spectrum is extremely skewed. The median singular value is around 2% of $\sigma_{\max}$, and even the 95th percentile is below the clamp threshold. This shows that most gradient directions carry negligible energy relative to the dominant one. In layers like these, clamp(0.1) basically boosts the entire spectrum.</p>
 
@@ -185,12 +185,12 @@
             <p>The next steps are:</p>
 
             <ul>
-              <li>Find a cheaper way to prevent small singular values from collapsing — for example, additive regularization on $G^\top G$, or low-rank corrections that selectively target the bottom of the spectrum.</li>
-              <li>Avoid computing full SVDs or expensive Newton–Schulz iterations, potentially using randomized projections to estimate and pad only the smallest singular values.</li>
-              <li>Test whether simply "padding" weak directions is enough at larger model scales, where the spectral skew may be even more extreme.</li>
+              <li>Find a cheaper way to prevent small singular values from collapsing. For example, additive regularization on $G^\top G$, or low-rank corrections that selectively target the bottom of the spectrum. I am currently exploring adding noise to the subspace of smaller singular values but it seems expensive.</li>
+              <li>Avoid computing full SVDs or expensive Newton–Schulz iterations, potentially using randomized projections to estimate and pad only the smallest singular values (update: around 7x slower than Muon but preserved the top 2% of SVs well)</li>
+              <li>Tweaking Muon's polynomial.</li>
             </ul>
 
-            <p>If we can isolate the minimum mechanism needed for stability, we may be able to keep Muon's benefits while making it significantly cheaper — opening the door to spectral-aware optimization at scales where the current approach is prohibitively expensive.</p>
+            <p>If we can isolate the minimum mechanism needed for stability, we can keep Muon's benefits while making it cheaper!! :></p>
 
             <h2 id="acknowledgments">Acknowledgments</h2>
 
