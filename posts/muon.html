@@ -74,6 +74,8 @@
           <div class="content">
             <div id="introduction">
               <p>Over the past year, I've been studying Muon, a spectral optimizer designed for training large NNs. Unlike standard optimizers that operate coordinate-wise, Muon operates at the level of singular values of weight matrices.</p>
+
+              <p>This post explains what Muon is actually doing, why it seems to work, and what my experiments suggest about what really matters inside Muon. The surprising takeaway: Muon's strength doesn't come from aggressively reshaping the full spectrum of singular values. Instead, the key mechanism is simply preventing small singular values from collapsing to zero. A simple clamp achieves nearly the same performance as full polar normalization.</p>
             </div>
 
             <h2 id="what-is-muon">What is Muon?</h2>
