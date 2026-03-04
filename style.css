@@ -1319,13 +1319,6 @@ a:focus-visible {
   cursor: pointer;
 }
 
-.card-details-visible {
-  font-size: 0.85rem;
-  color: var(--muted);
-  line-height: 1.55;
-  margin-top: 0.8rem;
-}
-
 /* Lightbox trigger */
 .fun-item[data-lightbox] {
   cursor: pointer;
