@@ -20,23 +20,6 @@
 <body>
   <div class="grain"></div>
 
-  <!-- Password gate -->
-  <div id="password-gate" style="position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;">
-    <label for="gate-input" style="font-family:'Newsreader',Georgia,serif;font-size:1.2rem;color:var(--fg);">Enter password</label>
-    <input id="gate-input" type="password" autofocus style="padding:0.5rem 1rem;font-size:1rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-alt);color:var(--fg);outline:none;text-align:center;" />
-  </div>
-  <script>
-    (function() {
-      const gate = document.getElementById('password-gate');
-      const input = document.getElementById('gate-input');
-      input.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && input.value === 'turtle') {
-          gate.remove();
-        }
-      });
-    })();
-  </script>
-
   <nav>
     <a href="/" class="nav-name">medha</a>
     <div class="nav-links">
