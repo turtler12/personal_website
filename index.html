@@ -48,14 +48,11 @@
     <section class="section research-section reveal" id="research">
       <h2><span class="section-icon">01</span>Research / Projects</h2>
       <div class="cards-grid">
-        <div class="card" data-expandable>
+        <div class="card">
           <div class="card-accent accent-rose"></div>
           <h3>Post-training & optimization</h3>
           <p>Efficient RLHF, preference modeling, orthogonal/manifold methods, and evaluation data pipelines.</p>
-          <div class="card-details">
-            <p>Working on improving post-training efficiency through novel optimization techniques on manifolds, with a focus on scalable preference learning and robust evaluation frameworks.</p>
-          </div>
-          <span class="card-expand-hint">click to expand</span>
+          <p class="card-details-visible">Working on improving post-training efficiency through novel optimization techniques on manifolds, with a focus on scalable preference learning and robust evaluation frameworks.</p>
           <span class="card-tag card-tag-rose">ML</span>
         </div>
         <a href="https://www.trytrust.ai/" target="_blank" rel="noopener" class="card card-link">
@@ -64,24 +61,18 @@
           <p>Making a cool company about AI governance with Hannah Chung!</p>
           <span class="card-tag card-tag-rose">ML</span>
         </a>
-        <div class="card" data-expandable>
+        <div class="card">
           <div class="card-accent accent-sage"></div>
           <h3>Gravitational-wave analysis</h3>
           <p>Coherence dashboards and analysis scripts for detector artifacts and cross-channel effects.</p>
-          <div class="card-details">
-            <p>Building real-time coherence monitoring dashboards and developing analysis pipelines to identify and characterize instrumental artifacts in gravitational-wave detector data.</p>
-          </div>
-          <span class="card-expand-hint">click to expand</span>
+          <p class="card-details-visible">Building real-time coherence monitoring dashboards and developing analysis pipelines to identify and characterize instrumental artifacts in gravitational-wave detector data.</p>
           <span class="card-tag card-tag-sage">Physics</span>
         </div>
-        <div class="card" data-expandable>
+        <div class="card">
           <div class="card-accent accent-gold"></div>
           <h3>Systems and physics</h3>
           <p>Trajectory modeling and resource-allocation prototypes for Golden Dome using RL and LP algorithms.</p>
-          <div class="card-details">
-            <p>Developing reinforcement learning and linear programming approaches for optimal trajectory planning and dynamic resource allocation in defense systems.</p>
-          </div>
-          <span class="card-expand-hint">click to expand</span>
+          <p class="card-details-visible">Developing reinforcement learning and linear programming approaches for optimal trajectory planning and dynamic resource allocation in defense systems.</p>
           <span class="card-tag card-tag-gold">Systems</span>
         </div>
       </div>
@@ -226,21 +217,7 @@
     }, { threshold: 0.3, rootMargin: '-80px 0px -40% 0px' });
     sections.forEach(s => navObserver.observe(s));
 
-    // === 5. Project Card Expansion ===
-    document.querySelectorAll('.card[data-expandable]').forEach(card => {
-      card.style.cursor = 'pointer';
-      card.addEventListener('click', () => {
-        const wasExpanded = card.classList.contains('card-expanded');
-        // Collapse all first
-        document.querySelectorAll('.card-expanded').forEach(c => c.classList.remove('card-expanded'));
-        // Toggle clicked one
-        if (!wasExpanded) {
-          card.classList.add('card-expanded');
-        }
-      });
-    });
-
-    // === 6. Fun Section Image Lightbox ===
+    // === 5. Fun Section Image Lightbox ===
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = lightbox.querySelector('img');
     const lightboxLabel = lightbox.querySelector('.lightbox-label');

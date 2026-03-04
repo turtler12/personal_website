@@ -1319,45 +1319,11 @@ a:focus-visible {
   cursor: pointer;
 }
 
-.card-details {
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: max-height 0.4s ease, opacity 0.3s ease, margin-top 0.3s ease;
-  margin-top: 0;
-}
-
-.card-expanded .card-details {
-  max-height: 200px;
-  opacity: 1;
-  margin-top: 0.8rem;
-}
-
-.card-details p {
+.card-details-visible {
   font-size: 0.85rem;
   color: var(--muted);
   line-height: 1.55;
-}
-
-.card-expand-hint {
-  display: block;
-  font-size: 0.7rem;
-  color: var(--muted);
-  opacity: 0.4;
-  margin-top: 0.4rem;
-  transition: opacity 0.2s ease;
-}
-
-.card:hover .card-expand-hint {
-  opacity: 0.7;
-}
-
-.card-expanded .card-expand-hint {
-  display: none;
-}
-
-.card-expanded {
-  grid-column: 1 / -1;
+  margin-top: 0.8rem;
 }
 
 /* Lightbox trigger */
