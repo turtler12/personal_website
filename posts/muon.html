@@ -57,7 +57,7 @@
           <li><a href="#how-does-muon-work">How Does Muon Work?</a></li>
           <li><a href="#newton-schulz">Newton–Schulz</a></li>
           <li><a href="#affine-sweep">Affine Sweep Experiments</a></li>
-          <li><a href="#next-steps">Next Steps</a></li>
+          <!-- <li><a href="#next-steps">Next Steps</a></li> -->
           <li><a href="#acknowledgments">Acknowledgments</a></li>
           <li><a href="#citation">Citation</a></li>
         </ul>
@@ -75,7 +75,7 @@
             <div id="introduction">
               <p>Over the past year, I've been studying Muon, a spectral optimizer designed for training large NNs. Unlike standard optimizers that operate coordinate-wise, Muon operates at the level of singular values of weight matrices.</p>
 
-              <p>This post explains what Muon is actually doing, why it seems to work, and what my experiments suggest about what really matters inside Muon. The surprising takeaway: Muon's strength doesn't come from aggressively reshaping the full spectrum of singular values. Instead, the key mechanism is simply preventing small singular values from collapsing to zero. A simple clamp achieves nearly the same performance as full polar normalization.</p>
+              <p>This post explains what Muon is actually doing, why it seems to work, and what my experiments suggest about what really matters inside Muon. The surprising takeaway: Muon's strength doesn't come from aggressively reshaping the full spectrum of singular values. Instead, the key mechanism is simply preventing small singular values from being ignored. A simple clamp achieves nearly the same performance as full polar normalization.</p>
             </div>
 
             <h2 id="what-is-muon">What is Muon?</h2>
@@ -84,7 +84,9 @@
 
             $$W_{t+1} = W_t - \eta \nabla W_t$$
 
-            <p>It treats every coordinate equally. While it is simple and stable, it is sensitive to conditioning. To solve this, Adam was created which rescales each coordinate adaptively:</p>
+            <p>where we use $\nabla W_t$ as shorthand for $\nabla_{W_t} \mathcal{L}(W_t)$, the gradient of the loss with respect to the weight matrix.</p>
+
+            <p>SGD treats every coordinate equally. While it is simple and stable, it is sensitive to conditioning — if some parameters have much larger gradients than others, a single learning rate either undershoots the small gradients or overshoots the large ones. To solve this, Adam rescales each coordinate adaptively:</p>
 
             $$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$$
 
@@ -92,7 +94,9 @@
 
             $$W_{t+1} = W_t - \eta \frac{m_t}{\sqrt{v_t} + \epsilon}$$
 
-            <p>Most models use some version of Adam for pretraining. But as models are getting larger, we need a higher efficiency optimizer (Muon!). Instead of treating the gradient as a large vector, Muon treats it as a matrix.</p>
+            <p>The key idea is that dividing by $\sqrt{v_t}$ normalizes each coordinate by its own scale. Parameters with consistently large gradients get divided by a large number, and parameters with small gradients get a relative boost. This makes the effective step size roughly uniform across coordinates, regardless of how different the raw gradient magnitudes are.</p>
+
+            <p>Most models use some version of Adam for pretraining. But as models get larger, we need a higher-efficiency optimizer (Muon!). The core insight behind Muon is to extend this same normalizing principle from individual coordinates to the singular values of the gradient matrix. Instead of treating the gradient as a flat vector of independent coordinates, Muon treats it as a matrix and asks: what if we normalize across the spectral structure of the gradient, not just its entries?</p>
 
             <h2 id="how-does-muon-work">How Does Muon Work?</h2>
 
@@ -108,19 +112,21 @@
 
             <p>The transformed update becomes $\Delta W_t = U \Sigma' V^\top$ and the parameter update is $W_{t+1} = W_t - \eta \Delta W_t$</p>
 
-            <p>The behavior of Muon is entirely determined by the choice of $y(\sigma)$. In the standard Muon implementation, $y(\sigma) = 1$ for all $\sigma$, meaning every singular value is mapped to the same constant. This corresponds to replacing the gradient with its orthogonal polar factor, completely discarding the original spectrum. A natural question is whether this aggressive reshaping is actually necessary, or whether something milder/more efficient would suffice.</p>
+            <p>The behavior of Muon is entirely determined by the choice of $y(\sigma)$. In the standard Muon implementation, $y(\sigma) = 1$ for all $\sigma$, meaning every singular value is mapped to the same constant. This corresponds to replacing the gradient with its orthogonal polar factor.</p>
+
+            <p>To unpack that: any matrix $G$ can be decomposed as $G = U \Sigma V^\top$ via SVD. The polar factor is the matrix $P = U V^\top$, obtained by setting all singular values to 1. Geometrically, $P$ preserves the "directions" of the gradient (its left and right singular vectors) while discarding all information about the "magnitudes" (the singular values). The result is the closest orthogonal matrix to $G$ in Frobenius norm. So when Muon uses $y(\sigma) = 1$, it is projecting the gradient onto the set of orthonormal matrices — keeping where the gradient points in spectral space, but making every direction equally strong.</p>
+
+            <p>This is a much more aggressive form of normalization than Adam. Where Adam equalizes the scale of individual coordinates, Muon equalizes the scale of entire singular value directions. A natural question is whether this aggressive reshaping is actually necessary, or whether something milder and more efficient would suffice.</p>
 
             <h2 id="newton-schulz">Newton–Schulz Approximation</h2>
 
-            <p>Computing full SVDs at each step is expensive. In practice, Muon often uses a Newton–Schulz iteration to approximate the polar factor.</p>
+            <p>Computing full SVDs at each step is expensive. In practice, Muon often uses a Newton–Schulz iteration to approximate the polar factor $U V^\top$ directly, without ever computing individual singular values.</p>
 
             <p>Given a matrix $X_0$, iterate:</p>
 
             $$X_{k+1} = \frac{1}{2} X_k (3I - X_k^\top X_k)$$
 
-            <p>Under appropriate normalization, this converges quadratically to the orthogonal polar factor $X_\infty = U V^\top$</p>
-
-            <p>This enables approximate spectral normalization without explicitly computing singular values.</p>
+            <p>Under appropriate normalization, this converges quadratically to the orthogonal polar factor $X_\infty = U V^\top$. This enables approximate spectral normalization without explicitly computing singular values — making Muon practical at scale.</p>
 
             <h2 id="affine-sweep">Affine Sweep Experiments</h2>
 
@@ -178,6 +184,7 @@
 
             <p>If this interpretation is correct, then the essential ingredient of Muon in this setting is not global spectral reshaping, but maintaining non-degenerate gradient directions. This motivates the next step: designing a cheaper mechanism that selectively pads small singular values without performing full spectral normalization.</p>
 
+            <!--
             <h2 id="next-steps">Next Steps</h2>
 
             <p>These results suggest that Muon helps mainly because it prevents singular values from getting too close to zero. If that's true, then we may not need full spectral normalization at all.</p>
@@ -191,6 +198,7 @@
             </ul>
 
             <p>If we can isolate the minimum mechanism needed for stability, we can keep Muon's benefits while making it cheaper!! :></p>
+            -->
 
             <h2 id="acknowledgments">Acknowledgments</h2>
 
