@@ -1618,7 +1618,7 @@ nav, main, footer {
 
 .im-gate-card {
   width: 100%;
-  max-width: 360px;
+  max-width: 300px;
   text-align: center;
   background: rgba(255, 255, 255, 0.55);
   backdrop-filter: blur(16px);
@@ -1634,14 +1634,14 @@ nav, main, footer {
 }
 
 .im-gate-lock {
-  width: 42px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   fill: none;
   stroke: var(--rose);
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
-  margin-bottom: 1rem;
+  margin-bottom: 1.4rem;
 }
 
 .im-gate-lock circle {
@@ -1649,32 +1649,16 @@ nav, main, footer {
   stroke: none;
 }
 
-.im-gate-card h1 {
-  font-family: 'Newsreader', Georgia, serif;
-  font-size: 1.5rem;
-  font-weight: 400;
-  margin-bottom: 0.5rem;
-  color: var(--fg);
-}
-
-.im-gate-sub {
-  font-size: 0.9rem;
-  color: var(--muted);
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
-}
-
 #gate-form {
-  display: flex;
-  gap: 0.5rem;
+  width: 100%;
 }
 
 #gate-input {
-  flex: 1;
-  min-width: 0;
-  padding: 0.6rem 0.85rem;
+  width: 100%;
+  padding: 0.65rem 0.9rem;
   font-size: 0.95rem;
   font-family: 'Inter', -apple-system, sans-serif;
+  text-align: center;
   color: var(--fg);
   background: var(--bg);
   border: 1px solid var(--border-dark);
@@ -1686,22 +1670,6 @@ nav, main, footer {
   outline: none;
   border-color: var(--rose);
 }
-
-#gate-btn {
-  padding: 0.6rem 1.1rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #fff;
-  background: var(--rose);
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
-}
-
-#gate-btn:hover { opacity: 0.9; }
-#gate-btn:disabled { opacity: 0.6; cursor: default; }
 
 .im-gate-error {
   min-height: 1.2em;
@@ -2185,6 +2153,21 @@ nav, main, footer {
   line-height: 1.5;
   margin: 0 0 0.5rem !important;
 }
+
+.im-month-body ul {
+  margin: 0 0 0.6rem;
+  padding-left: 1.1rem;
+}
+
+.im-month-body li {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 0.83rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 0.3rem;
+}
+
+.im-month-body li::marker { color: var(--rose); }
 
 .im-deliverable {
   display: inline-block;
