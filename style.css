@@ -1587,6 +1587,14 @@ nav, main, footer {
   html {
     scroll-behavior: auto;
   }
+
+  /* These two only become visible mid-animation; without it (motion reduced)
+     they'd stay at their opacity:0 resting state. Pin them visible. */
+  .im-score-pop,
+  .im-speak {
+    opacity: 1 !important;
+    animation: none !important;
+  }
 }
 
 /* ========================================
