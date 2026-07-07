@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TrustAI structure – Medha Venkatapathy</title>
+  <meta name="description" content="The shape of TrustAI: a self-improving loop across three phases — context, user interaction, and offline self-improvement.">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    /* ── TrustAI structure post: the loop diagram ───────────────────────────
+       Scoped to this post (ts- prefix). Reuses site tokens so it flips with
+       dark mode. Context = sage, User interaction = rose, Self-improvement =
+       gold — the same three-accent system as the rest of the site. */
+
+    .ts-lede {
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 0.98rem;
+      line-height: 1.7;
+      color: var(--muted);
+      border-left: 3px solid var(--rose-muted);
+      padding: 0.25rem 0 0.25rem 1.1rem;
+      margin: 0 0 2.25rem;
+    }
+    .ts-lede strong { color: var(--fg); font-weight: 600; }
+
+    /* ── Figure shell ── */
+    .ts-figure {
+      margin: 2.25rem 0 1rem;
+      padding: 1.25rem 1.25rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background:
+        radial-gradient(120% 90% at 12% 8%,  var(--sage-soft), transparent 55%),
+        radial-gradient(120% 90% at 88% 92%, var(--gold-soft), transparent 55%),
+        var(--bg-alt);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 6px 24px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+    .ts-svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+    /* ── Phase band headers ── */
+    .ts-phase { font-family: 'Inter', -apple-system, sans-serif; font-weight: 700;
+      font-size: 15px; letter-spacing: 0.01em; text-anchor: middle; }
+    .ts-phase.ctx  { fill: var(--sage); }
+    .ts-phase.ui   { fill: var(--rose); }
+    .ts-phase.self { fill: var(--gold); }
+    .ts-divider { stroke: var(--border-dark); stroke-width: 1; stroke-dasharray: 2 6;
+      opacity: 0.6; }
+
+    /* ── Edges (drawn source→target so flow runs toward the arrow) ── */
+    .ts-edge  { fill: none; stroke-width: 2; stroke-linecap: round; opacity: 0.34; }
+    .ts-flow  { fill: none; stroke-width: 2.2; stroke-linecap: round;
+      stroke-dasharray: 4 13; opacity: 0.85; animation: ts-flow 1.4s linear infinite; }
+    .ts-flow.d2 { animation-duration: 1.7s; }
+    .ts-flow.d3 { animation-duration: 2.0s; }
+    @keyframes ts-flow { to { stroke-dashoffset: -34; } }
+
+    .e-ctx  { stroke: var(--sage); }
+    .e-ui   { stroke: var(--rose); }
+    .e-self { stroke: var(--gold); }
+
+    /* ── The big return arc ── */
+    .ts-arc      { fill: none; stroke: url(#ts-arc-grad); stroke-width: 10;
+      stroke-linecap: round; opacity: 0.38; }
+    .ts-arc-flow { fill: none; stroke: url(#ts-arc-grad); stroke-width: 9;
+      stroke-linecap: round; stroke-dasharray: 3 26; opacity: 0.9;
+      animation: ts-arcflow 2.6s linear infinite; }
+    @keyframes ts-arcflow { to { stroke-dashoffset: -58; } }
+
+    /* ── Nodes ── */
+    .ts-node-bg {
+      fill: var(--bg); stroke-width: 1.5;
+      transform-box: fill-box; transform-origin: center;
+      animation: ts-breathe 6s ease-in-out infinite;
+    }
+    .ts-node.ctx  .ts-node-bg { stroke: var(--sage-muted); }
+    .ts-node.ui   .ts-node-bg { stroke: var(--rose-muted); }
+    .ts-node.self .ts-node-bg { stroke: var(--gold-muted); }
+    .ts-node.pill .ts-node-bg { fill: var(--bg-alt); }
+
+    .ts-node.b2 .ts-node-bg { animation-delay: -0.8s; }
+    .ts-node.b3 .ts-node-bg { animation-delay: -1.6s; }
+    .ts-node.b4 .ts-node-bg { animation-delay: -2.4s; }
+    .ts-node.b5 .ts-node-bg { animation-delay: -3.2s; }
+    .ts-node.b6 .ts-node-bg { animation-delay: -4.0s; }
+
+    @keyframes ts-breathe {
+      0%, 100% { opacity: 0.94; }
+      50%      { opacity: 1; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.05)); }
+    }
+
+    .ts-t { font-family: 'Inter', -apple-system, sans-serif; font-weight: 600;
+      font-size: 14px; fill: var(--fg); text-anchor: middle; }
+    .ts-t.sm { font-size: 12.5px; }
+    .ts-s { font-family: 'Inter', -apple-system, sans-serif; font-weight: 500;
+      font-size: 10.5px; text-anchor: middle; }
+    .ts-node.ctx  .ts-s { fill: var(--sage); }
+    .ts-node.ui   .ts-s { fill: var(--rose); }
+    .ts-node.self .ts-s { fill: var(--gold); }
+
+    /* the context hub — the confluence / rebirth point of the loop */
+    .ts-hub { fill: url(#ts-hub-grad); stroke: none;
+      transform-box: fill-box; transform-origin: center;
+      animation: ts-hubpulse 8s ease-in-out infinite; }
+    .ts-hub-t { font-family: 'Inter', -apple-system, sans-serif; font-weight: 700;
+      font-size: 15px; fill: #fff; text-anchor: middle; letter-spacing: 0.01em; }
+    @keyframes ts-hubpulse {
+      0%, 100% { filter: drop-shadow(0 0 0 rgba(196,93,93,0)); }
+      6%       { filter: drop-shadow(0 0 14px rgba(196,93,93,0.55)); }
+      20%      { filter: drop-shadow(0 0 0 rgba(196,93,93,0)); }
+    }
+    /* ripple ring that fires when the comet returns to context (loop start) */
+    .ts-ripple { fill: none; stroke: var(--rose-muted); stroke-width: 2;
+      transform-box: fill-box; transform-origin: center; opacity: 0;
+      animation: ts-ripple 8s ease-out infinite; }
+    @keyframes ts-ripple {
+      0%  { opacity: 0.7; transform: scale(0.7); }
+      14% { opacity: 0;   transform: scale(1.9); }
+      100%{ opacity: 0; }
+    }
+
+    /* ── The circulating comet + tail ── */
+    .ts-comet {
+      offset-path: path("M90,290 C150,232 214,168 300,148 C438,152 504,232 620,250 C692,262 724,158 816,150 C882,150 952,196 984,232 C1086,360 1040,510 690,522 C360,534 150,504 90,290");
+      offset-rotate: 0deg; offset-anchor: 50% 50%;
+      animation: ts-travel 8s linear infinite;
+    }
+    @keyframes ts-travel {
+      from { offset-distance: 0%; }
+      to   { offset-distance: 100%; }
+    }
+    .ts-comet-head { fill: url(#ts-comet-grad);
+      filter: drop-shadow(0 0 6px var(--rose)) drop-shadow(0 0 13px var(--gold))
+              drop-shadow(0 0 22px var(--rose-muted)); }
+    .ts-tail { fill: var(--rose); }
+    .ts-t1 { animation-delay: -7.86s; opacity: 0.55; }
+    .ts-t2 { animation-delay: -7.72s; opacity: 0.40; }
+    .ts-t3 { animation-delay: -7.58s; opacity: 0.28; }
+    .ts-t4 { animation-delay: -7.44s; opacity: 0.18; }
+
+    /* ── Legend ── */
+    .ts-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem;
+      justify-content: center; align-items: center;
+      font-family: 'Inter', -apple-system, sans-serif; font-size: 0.8rem;
+      color: var(--muted); padding: 0.9rem 0.5rem 0.4rem; }
+    .ts-key { display: inline-flex; align-items: center; gap: 0.45rem; }
+    .ts-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .ts-dot.ctx { background: var(--sage); }
+    .ts-dot.ui { background: var(--rose); }
+    .ts-dot.self { background: var(--gold); }
+    .ts-dot.comet { background: radial-gradient(circle at 35% 35%, var(--rose), var(--gold));
+      box-shadow: 0 0 6px var(--rose-muted); }
+
+    .ts-cap { font-family: 'Inter', -apple-system, sans-serif; font-size: 0.82rem;
+      color: var(--muted); text-align: center; font-style: italic; margin: 0.4rem 0 0; }
+
+    @media (max-width: 620px) {
+      .ts-figure { padding: 0.75rem 0.5rem 0.25rem; }
+      .ts-legend { font-size: 0.72rem; gap: 0.4rem 0.9rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ts-flow, .ts-arc-flow, .ts-node-bg, .ts-hub, .ts-ripple, .ts-comet { animation: none !important; }
+      .ts-comet { offset-distance: 6%; }
+      .ts-ripple { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grain"></div>
+
+  <nav>
+    <a href="/" class="nav-name">medha</a>
+    <div class="nav-links">
+      <a href="/blog.html">blog</a>
+      <a href="mailto:medhaven@mit.edu">contact</a>
+      <button class="theme-toggle" aria-label="Toggle dark mode">&#9790;</button>
+    </div>
+  </nav>
+
+  <main>
+    <article>
+      <header>
+        <h1>TrustAI structure</h1>
+        <p class="meta">July 2026</p>
+      </header>
+
+      <div class="content">
+
+        <p class="ts-lede">
+          TrustAI isn't a pipeline that runs once and stops — it's a
+          <strong>loop</strong>. Every interaction moves through three phases:
+          it gathers <strong>context</strong>, it does something
+          <strong>with you</strong> (search, or an automation it plans and
+          executes), and then, offline, it <strong>improves itself</strong> so
+          the next turn starts from a better place. The diagram below is the
+          whole system on one arc; the pulse traces a single trip around it.
+        </p>
+
+        <figure class="ts-figure">
+          <svg class="ts-svg" viewBox="0 0 1080 560" role="img"
+               aria-label="TrustAI's self-improving loop: context feeds user interaction, which feeds offline self-improvement, which feeds back into context.">
+            <defs>
+              <linearGradient id="ts-arc-grad" x1="1" y1="0" x2="0" y2="1">
+                <stop offset="0%"  stop-color="var(--gold)"/>
+                <stop offset="55%" stop-color="var(--sage)"/>
+                <stop offset="100%" stop-color="var(--sage)"/>
+              </linearGradient>
+              <radialGradient id="ts-comet-grad" cx="0.5" cy="0.5" r="0.5">
+                <stop offset="0%"  stop-color="#fff"/>
+                <stop offset="35%" stop-color="var(--rose)"/>
+                <stop offset="100%" stop-color="var(--gold)"/>
+              </radialGradient>
+              <linearGradient id="ts-hub-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%"   stop-color="var(--rose)"/>
+                <stop offset="55%"  stop-color="var(--gold)"/>
+                <stop offset="100%" stop-color="var(--sage)"/>
+              </linearGradient>
+              <marker id="ts-arrow" viewBox="0 0 10 10" refX="8.5" refY="5"
+                      markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0.5,0.8 L9,5 L0.5,9.2" fill="none"
+                      stroke="context-stroke" stroke-width="1.6"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+              <marker id="ts-arrow-arc" viewBox="0 0 12 12" refX="9" refY="6"
+                      markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+                <path d="M1,1 L10.5,6 L1,11" fill="none"
+                      stroke="var(--sage)" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+            </defs>
+
+            <!-- ── Phase band ── -->
+            <text class="ts-phase ctx"  x="150" y="34">Context</text>
+            <text class="ts-phase ui"   x="700" y="34">User interaction</text>
+            <text class="ts-phase self" x="984" y="34">Self-improvement</text>
+            <line class="ts-divider" x1="546" y1="56" x2="546" y2="470"/>
+            <line class="ts-divider" x1="902" y1="56" x2="902" y2="470"/>
+
+            <!-- ── Return arc (dream → context), behind everything ── -->
+            <path class="ts-arc"      d="M984,300 C1088,388 1044,512 690,524 C356,536 150,502 96,332"/>
+            <path class="ts-arc-flow" d="M984,300 C1088,388 1044,512 690,524 C356,536 150,502 96,332"
+                  marker-end="url(#ts-arrow-arc)"/>
+
+            <!-- ── Edges: static wire + animated flow (source → target) ── -->
+            <!-- context → suggest -->
+            <g class="e-ctx">
+              <path class="ts-edge" d="M138,262 C168,214 196,182 244,174" marker-end="url(#ts-arrow)"/>
+              <path class="ts-flow" d="M138,262 C168,214 196,182 244,174"/>
+            </g>
+            <!-- context → user request -->
+            <g class="e-ctx">
+              <path class="ts-edge" d="M122,320 C150,342 158,352 173,360" marker-end="url(#ts-arrow)"/>
+              <path class="ts-flow d2" d="M122,320 C150,342 158,352 173,360"/>
+            </g>
+            <!-- user request → search -->
+            <g class="e-ctx">
+              <path class="ts-edge" d="M300,390 C348,408 382,422 414,432" marker-end="url(#ts-arrow)"/>
+              <path class="ts-flow d3" d="M300,390 C348,408 382,422 414,432"/>
+            </g>
+            <!-- user request → search + context -->
+            <g class="e-ctx">
+              <path class="ts-edge" d="M326,374 C360,374 388,374 419,374" marker-end="url(#ts-arrow)"/>
+              <path class="ts-flow d2" d="M326,374 C360,374 388,374 419,374"/>
+            </g>
+            <!-- user request → automation -->
+            <g class="e-ctx">
+              <path class="ts-edge" d="M322,356 C360,332 384,314 402,306" marker-end="url(#ts-arrow)"/>
+              <path class="ts-flow" d="M322,356 C360,332 384,314 402,306"/>
+            </g>
+            <!-- suggest → make plan -->
+            <g class="e-ui">
+              <path class="ts-edge" d="M400,152 C476,150 508,206 550,230" marker-end="url(#ts-arrow)"/>
+              <path class="ts-flow d2" d="M400,152 C476,150 508,206 550,230"/>
+            </g>
+            <!-- automation → make plan -->
+            <g class="e-ui">
+              <path class="ts-edge" d="M544,298 C566,292 556,278 556,276" marker-end="url(#ts-arrow)"/>
+              <path class="ts-flow" d="M544,298 C566,292 556,278 556,276"/>
+            </g>
+            <!-- make plan → execute front end -->
+            <g class="e-ui">
+              <path class="ts-edge" d="M672,232 C708,202 716,164 724,152" marker-end="url(#ts-arrow)"/>
+              <path class="ts-flow d2" d="M672,232 C708,202 716,164 724,152"/>
+            </g>
+            <!-- make plan → execute API -->
+            <g class="e-ui">
+              <path class="ts-edge" d="M672,268 C708,300 716,336 724,346" marker-end="url(#ts-arrow)"/>
+              <path class="ts-flow d3" d="M672,268 C708,300 716,336 724,346"/>
+            </g>
+            <!-- execute front end → dream -->
+            <g class="e-self">
+              <path class="ts-edge" d="M904,150 C948,160 918,190 900,212" marker-end="url(#ts-arrow)"/>
+              <path class="ts-flow d2" d="M904,150 C948,160 918,190 900,212"/>
+            </g>
+            <!-- execute API → dream -->
+            <g class="e-self">
+              <path class="ts-edge" d="M904,348 C948,338 918,300 900,270" marker-end="url(#ts-arrow)"/>
+              <path class="ts-flow d3" d="M904,348 C948,338 918,300 900,270"/>
+            </g>
+
+            <!-- ── Nodes ── -->
+            <!-- context hub -->
+            <g class="ts-node ctx">
+              <circle class="ts-ripple" cx="90" cy="290" r="40"/>
+              <rect class="ts-hub" x="34" y="262" width="112" height="56" rx="28"/>
+              <text class="ts-hub-t" x="90" y="290" dominant-baseline="central">context</text>
+            </g>
+
+            <!-- suggest automation -->
+            <g class="ts-node ctx b2">
+              <rect class="ts-node-bg" x="200" y="112" width="200" height="60" rx="14"/>
+              <text class="ts-t sm" x="300" y="136" dominant-baseline="central">Suggest automation</text>
+              <text class="ts-s"    x="300" y="154" dominant-baseline="central">proactive · pop-up</text>
+            </g>
+
+            <!-- user request -->
+            <g class="ts-node ctx b3">
+              <rect class="ts-node-bg" x="176" y="344" width="150" height="56" rx="14"/>
+              <text class="ts-t sm" x="251" y="366" dominant-baseline="central">User request</text>
+              <text class="ts-s"    x="251" y="384" dominant-baseline="central">reactive</text>
+            </g>
+
+            <!-- request types -->
+            <g class="ts-node ctx pill b4">
+              <rect class="ts-node-bg" x="404" y="281" width="140" height="42" rx="21"/>
+              <text class="ts-t sm" x="474" y="302" dominant-baseline="central">Automation</text>
+            </g>
+            <g class="ts-node ctx pill b5">
+              <rect class="ts-node-bg" x="421" y="353" width="160" height="40" rx="20"/>
+              <text class="ts-t sm" x="501" y="373" dominant-baseline="central">Search + context</text>
+            </g>
+            <g class="ts-node ctx pill b6">
+              <rect class="ts-node-bg" x="416" y="423" width="104" height="38" rx="19"/>
+              <text class="ts-t sm" x="468" y="442" dominant-baseline="central">Search</text>
+            </g>
+
+            <!-- make plan -->
+            <g class="ts-node ui">
+              <rect class="ts-node-bg" x="550" y="219" width="140" height="62" rx="14"/>
+              <text class="ts-t" x="620" y="250" dominant-baseline="central">Make plan</text>
+            </g>
+
+            <!-- execute front end -->
+            <g class="ts-node ui b3">
+              <rect class="ts-node-bg" x="728" y="114" width="176" height="56" rx="14"/>
+              <text class="ts-t sm" x="816" y="136" dominant-baseline="central">Execute</text>
+              <text class="ts-s"    x="816" y="154" dominant-baseline="central">through front end</text>
+            </g>
+
+            <!-- execute API -->
+            <g class="ts-node ui b4">
+              <rect class="ts-node-bg" x="728" y="320" width="176" height="56" rx="14"/>
+              <text class="ts-t sm" x="816" y="342" dominant-baseline="central">Execute</text>
+              <text class="ts-s"    x="816" y="360" dominant-baseline="central">through API calls</text>
+            </g>
+
+            <!-- dream / train -->
+            <g class="ts-node self b2">
+              <rect class="ts-node-bg" x="898" y="192" width="172" height="96" rx="16"/>
+              <text class="ts-t sm" x="984" y="220" dominant-baseline="central">Dream / Train</text>
+              <text class="ts-s"    x="984" y="240" dominant-baseline="central">offline, out of inference</text>
+              <text class="ts-s"    x="984" y="258" dominant-baseline="central">→ a better product</text>
+            </g>
+
+            <!-- ── Circulating comet + tail (drawn last, on top) ── -->
+            <circle class="ts-comet ts-tail ts-t4" r="2.2"/>
+            <circle class="ts-comet ts-tail ts-t3" r="3.0"/>
+            <circle class="ts-comet ts-tail ts-t2" r="3.8"/>
+            <circle class="ts-comet ts-tail ts-t1" r="4.8"/>
+            <circle class="ts-comet ts-comet-head" r="6.2"/>
+          </svg>
+
+          <div class="ts-legend">
+            <span class="ts-key"><span class="ts-dot ctx"></span>Context</span>
+            <span class="ts-key"><span class="ts-dot ui"></span>User interaction</span>
+            <span class="ts-key"><span class="ts-dot self"></span>Self-improvement</span>
+            <span class="ts-key"><span class="ts-dot comet"></span>one trip around the loop</span>
+          </div>
+        </figure>
+        <p class="ts-cap">TrustAI as a single loop — the pulse is one interaction, from context to a better product and back.</p>
+
+        <h2>A loop, not a pipeline</h2>
+        <p>
+          Most assistants are pipelines: a request comes in, an answer goes out,
+          and nothing about the system is different afterward. TrustAI is drawn
+          as a closed arc on purpose. The output of the last phase —
+          <em>self-improvement</em> — is wired back into the first —
+          <em>context</em>. The product you use tomorrow is shaped by what it
+          learned from you today. Read the diagram clockwise and you're following
+          a single interaction all the way around.
+        </p>
+
+        <h2>Context</h2>
+        <p>
+          Everything starts from context: your open tabs, inbox, calendar, the
+          page in front of you, and what TrustAI already knows about how you
+          work. From that context an interaction begins in one of two ways.
+          It can be <strong>proactive</strong> — TrustAI notices a repetitive
+          task and <em>suggests an automation through a pop-up</em> — or
+          <strong>reactive</strong>, driven by a request you make. A request
+          resolves into one of three shapes: a plain <code>Search</code>, a
+          <code>Search + context</code> that fuses the live web with your
+          personal data, or an <code>Automation</code> — something to actually
+          get done rather than just answered.
+        </p>
+
+        <h2>User interaction</h2>
+        <p>
+          Anything that needs doing converges on a single step:
+          <strong>Make plan</strong>. The plan is where a vague intent becomes a
+          concrete sequence of actions, and it's the point at which TrustAI
+          decides <em>how</em> to act. Execution then takes one of two routes —
+          <strong>through the front end</strong>, driving the interface the way
+          you would, or <strong>through API calls</strong> when a service exposes
+          one. Same plan, different substrate; the API route is faster and more
+          reliable when it exists, and the front-end route is the fallback that
+          means "if a human can click it, so can we."
+        </p>
+
+        <h2>Self-improvement</h2>
+        <p>
+          When TrustAI isn't in inference, it <strong>dreams</strong>. Offline,
+          out of the critical path, it trains on what happened — which plans
+          worked, which routes failed, what you accepted or corrected — and folds
+          that back into the model and your context. This is the segment of the
+          loop that makes the whole thing worth drawing as a circle: the big arc
+          carries everything learned in this trip back to the start, so the next
+          interaction opens with more context and a sharper sense of what you
+          want. The loop closes, and the product is a little better than it was
+          one turn ago.
+        </p>
+
+      </div>
+
+      <a href="/blog.html" class="back-link">← Back to blog</a>
+    </article>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p class="footer-tagline">Let's build something elegant.</p>
+      <div class="footer-links">
+        <a href="mailto:medhaven@mit.edu" class="footer-link">
+          <span class="footer-label">Email</span>
+          <span>medhaven@mit.edu</span>
+        </a>
+        <a href="https://www.linkedin.com/in/medhav/" target="_blank" rel="noopener" class="footer-link">
+          <span class="footer-label">LinkedIn</span>
+          <span>/medhav</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Dark mode toggle (mirrors the homepage; theme persists via localStorage)
+    const toggle = document.querySelector('.theme-toggle');
+    const saved = localStorage.getItem('theme');
+    document.documentElement.setAttribute('data-theme', saved ?? 'light');
+    function updateToggleIcon() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      toggle.innerHTML = isDark ? '&#9788;' : '&#9790;';
+    }
+    updateToggleIcon();
+    toggle.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const next = isDark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateToggleIcon();
+    });
+  </script>
+
+  <!-- GoatCounter analytics -->
+  <script data-goatcounter="https://medhavenkatapathy.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
